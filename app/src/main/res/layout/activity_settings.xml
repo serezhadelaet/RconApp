@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+ <ScrollView
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+
+     >
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical">
+         <TextView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="Settings"
+             android:textAlignment="center"
+             android:textSize="20dp"
+             android:paddingBottom="20dp"
+             android:paddingTop="20dp"
+             android:textColor="@color/colorAccent"
+             android:background="@color/colorPrimaryDark"
+             android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+         <TextView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="Steam API KEY"
+             android:textAlignment="center"
+             android:textSize="16dp"/>
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:textSize="16dp"
+             android:tooltipText="Steam API KEY"
+             android:id="@+id/server_add_steamapi"
+             android:textAlignment="center"/>
+
+         <TextView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="Words to filter"
+             android:textAlignment="center"
+             android:textSize="16dp"/>
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:textSize="16dp"
+             android:tooltipText="Words to filter"
+             android:id="@+id/server_add_wordsfilter"
+             android:textAlignment="center"/>
+
+         <TextView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="Chat prefixes"
+             android:textAlignment="center"
+             android:textSize="16dp"/>
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:textSize="16dp"
+             android:tooltipText="Chat prefixes"
+             android:id="@+id/server_add_chatprefixes"
+             android:textAlignment="center"/>
+         <Button
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center"
+             android:id="@+id/activity_settings_save"
+             android:text="Save"/>
+         <Button
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center"
+             android:id="@+id/activity_settings_addserver"
+             android:text="Add a server"/>
+         <ListView android:id="@+id/server_add_listview"
+             android:layout_width="match_parent"
+             android:layout_height="200dp"
+             android:focusable="true"
+             />
+     </LinearLayout>
+
+ </ScrollView>
+
+
+
+
+</LinearLayout>
