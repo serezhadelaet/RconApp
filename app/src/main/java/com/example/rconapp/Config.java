@@ -38,7 +38,7 @@ public class Config {
     }
 
     public Config() {
-        
+
     }
 
     public String read(Context context, String fileName) {
