@@ -2,6 +2,9 @@
 
 Usefull and simple android tool to manage more than one server at the same time
 
+## Builds
+* Latest release: [RconApp v0.0.1](https://github.com/serezhadelaet/RconApp/releases/tag/0.0.1)
+
 ## Requirements
 
 * Android Studio 3.5.3 or higher
