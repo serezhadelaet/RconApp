@@ -1,6 +1,6 @@
 # RconApp
 
-Usefull and simple android tool to manage more than one server at the same time
+Usefull and simple android tool to manage more than one RUST server at the same time
 
 ## Builds
 * Latest release: [RconApp v0.0.1](https://github.com/serezhadelaet/RconApp/releases/tag/0.0.1)
