@@ -13,3 +13,8 @@ Usefull and simple android tool to manage more than one server at the same time
 * [nv-websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websockets
 * [gson](https://github.com/google/gson) - Json
 * [SortableTableView](https://github.com/ISchwarz23/SortableTableView) - Tables
+
+## Screenshots
+
+![Preview1](/preview1.jpg)
+![Preview2](/preview2.jpg)
