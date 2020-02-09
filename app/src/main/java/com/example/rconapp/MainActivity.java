@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Boolean isPlayersOpened = false;
 
+    private List<String> playersWithoutAvatar = new ArrayList<>();
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -210,8 +212,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 adapter.notifyDataSetChanged();
         }
     }
-
-    private List<String> playersWithoutAvatar = new ArrayList<>();
 
     public void AddOrUpdatePlayers(Config.Server server, List<LinkedTreeMap<String, Object>> list) {
         final List<Player> oldPlayers = new ArrayList<>();
