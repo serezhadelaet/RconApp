@@ -38,8 +38,7 @@ public class Config {
     }
 
     public Config() {
-        //CreateDefault(this);
-        //Read(this);
+        
     }
 
     public String read(Context context, String fileName) {
