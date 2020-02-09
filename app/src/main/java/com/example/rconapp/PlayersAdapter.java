@@ -1,9 +1,7 @@
 package com.example.rconapp;
 
 import android.content.Context;
-import android.service.autofill.FieldClassification;
 import android.support.design.card.MaterialCardView;
-import android.support.transition.Transition;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.util.List;
-
 import de.codecrafters.tableview.TableDataAdapter;
 
 public class PlayersAdapter extends TableDataAdapter<MainActivity.Player> {
