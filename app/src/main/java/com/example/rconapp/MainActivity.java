@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    public static void OutputChat(String prefix, String text){
+    public static void OutputChat(String prefix, String text) {
         final String str = "[" + prefix + "] " + text;
         Instance.runOnUiThread(new Runnable() {
             @Override
@@ -336,12 +336,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private DrawerLayout drawer;
 
+    private Intent serviceIntent;
+
+    private void StartService(){
+        if (serviceIntent != null) return;
+        serviceIntent = new Intent(getApplicationContext(), AppService.class);
+        getApplicationContext().startService(serviceIntent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (Instance == null)
             Instance = this;
+
+        StartService();
+
         drawer = (DrawerLayout) findViewById(R.id.container);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -490,12 +501,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (rconManager == null)
             rconManager = new RconManager();
 
-        UpdateMenu();
-
         for (int i = 0; i < Config.ServerList.size(); i++) {
             Config.Server server = Config.ServerList.get(i);
             RconManager.add(server);
         }
+
+        UpdateMenu();
 
         View headerLayout = navigationView.getHeaderView(0);
         menuOnline = (TextView) headerLayout.findViewById(R.id.menu_Online);
@@ -548,6 +559,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //getApplicationContext().stopService(serviceIntent);
         rconManager.removeAll();
         finishAffinity();
         System.exit(0);
@@ -555,6 +567,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+        //getApplicationContext().stopService(serviceIntent);
         rconManager.removeAll();
         finishAffinity();
         System.exit(0);

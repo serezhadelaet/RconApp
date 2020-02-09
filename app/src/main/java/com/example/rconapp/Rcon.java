@@ -68,7 +68,7 @@ public class Rcon extends LightBehaviour {
 
         for (int i = 0; i < prefixes.length; i++) {
             String pr = prefixes[i];
-            if (data.contains(pr)){
+            if (data.contains(pr)) {
                 MainActivity.Instance.OutputChat(server.Name, data);
                 return true;
             }
@@ -142,7 +142,8 @@ public class Rcon extends LightBehaviour {
             Log.d("Rcon","ws://" + server.IP + ":" + server.Port + "/" + server.Password);
             socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
         }catch (IOException ex){
-            MainActivity.Output(server,"Error" + ex);
+            if (MainActivity.Instance != null)
+                MainActivity.Output(server,"Error" + ex);
             return;
         }
         socket.addListener(new WebSocketAdapter() {

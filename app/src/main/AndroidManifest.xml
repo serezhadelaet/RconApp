@@ -11,6 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <service
+            android:name="AppService"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:label="AppService"
+            >
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:extractNativeLibs="false"
