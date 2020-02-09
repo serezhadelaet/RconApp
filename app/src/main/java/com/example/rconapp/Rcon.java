@@ -6,10 +6,8 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.neovisionaries.ws.client.*;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class Rcon extends LightBehaviour {
 
