@@ -60,8 +60,8 @@ public class SettingsActivity extends Activity {
                 delete.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        MainActivity.Config.ServerList.remove(server);
-                        MainActivity.Instance.loadOrSaveConfg(true);
+                        Config.getConfig().ServerList.remove(server);
+                        Config.saveConfig();
                         MainActivity.rconManager.remove(server);
                         MainActivity.Instance.UpdateMenu();
                         UpdateServersList();
@@ -98,7 +98,8 @@ public class SettingsActivity extends Activity {
 
     private void UpdateServersList(){
         ListView listView = (ListView)findViewById(R.id.server_add_listview);
-        ListAdapter customAdapter = new ListAdapter(this, R.layout.listview_item, MainActivity.Config.ServerList);
+        ListAdapter customAdapter = new ListAdapter(this,
+                R.layout.listview_item, Config.getConfig().ServerList);
         listView.setAdapter(customAdapter);
     }
 
@@ -112,9 +113,11 @@ public class SettingsActivity extends Activity {
         final EditText eFilter = (EditText)findViewById(R.id.server_add_wordsfilter);
         final EditText ePrefixes = (EditText)findViewById(R.id.server_add_chatprefixes);
 
-        eSteamAPI.setText(MainActivity.Instance.Config.SteamAPIKey);
-        eFilter.setText(MainActivity.Instance.Config.FilteredMessages);
-        ePrefixes.setText(MainActivity.Instance.Config.ChatPrefixes);
+        final Config config = Config.getConfig();
+
+        eSteamAPI.setText(config.SteamAPIKey);
+        eFilter.setText(config.FilteredMessages);
+        ePrefixes.setText(config.ChatPrefixes);
 
         UpdateServersList();
 
@@ -123,11 +126,11 @@ public class SettingsActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                MainActivity.Config.SteamAPIKey = eSteamAPI.getText().toString();
-                MainActivity.Config.FilteredMessages = eFilter.getText().toString();
-                MainActivity.Config.ChatPrefixes = ePrefixes.getText().toString();
+                config.SteamAPIKey = eSteamAPI.getText().toString();
+                config.FilteredMessages = eFilter.getText().toString();
+                config.ChatPrefixes = ePrefixes.getText().toString();
 
-                MainActivity.Instance.loadOrSaveConfg(true);
+                Config.saveConfig();
 
                 // Hide a keyboard
                 View view = getCurrentFocus();

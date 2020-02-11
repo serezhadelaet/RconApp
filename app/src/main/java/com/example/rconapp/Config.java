@@ -1,6 +1,9 @@
 package com.example.rconapp;
 
 import android.content.Context;
+
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Config {
+    public static String ConfigVersion = "1.0";
+    public static Context contextOwner;
     public String SteamAPIKey = "";
     public List<Server> ServerList = new ArrayList<>();
     public String FilteredMessages = "";
     public String ChatPrefixes = "";
+    public static String TriggerMessages = "[xChat]";
 
     public static class Server {
         public String Name;
@@ -33,13 +39,43 @@ public class Config {
         }
     }
 
-    public Config() {
+    public static Config config;
 
+    public static void saveConfig(){
+        if (config == null)
+            config = new Config();
+        String json = new Gson().toJson(config);
+        writeToJson("appConfig" + ConfigVersion + ".json", json);
     }
 
-    public String read(Context context, String fileName) {
+    public static Config getConfig() {
+
+        if (config != null)
+            return config;
+
+        boolean isFilePresent = Config.isFilePresent("appConfig" + ConfigVersion + ".json");
+
+        if (!isFilePresent) {
+            config = new Config();
+            String json = new Gson().toJson(config);
+            writeToJson("appConfig" + ConfigVersion + ".json", json);
+            return config;
+        }
+        else{
+            try{
+                String jsonString = Config.readFromJson("appConfig" + ConfigVersion + ".json");
+                config = new Gson().fromJson(jsonString, Config.class);
+            }
+            catch (Exception ex){
+                config = new Config();
+            }
+            return config;
+        }
+    }
+
+    public static String readFromJson(String fileName) {
         try {
-            FileInputStream fis = context.openFileInput(fileName);
+            FileInputStream fis = contextOwner.openFileInput(fileName);
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader bufferedReader = new BufferedReader(isr);
             StringBuilder sb = new StringBuilder();
@@ -55,9 +91,9 @@ public class Config {
         }
     }
 
-    public boolean write(Context context, String fileName, String jsonString){
+    public static boolean writeToJson(String fileName, String jsonString){
         try {
-            FileOutputStream fos = context.openFileOutput(fileName,Context.MODE_PRIVATE);
+            FileOutputStream fos = contextOwner.openFileOutput(fileName,Context.MODE_PRIVATE);
             if (jsonString != null) {
                 fos.write(jsonString.getBytes());
             }
@@ -68,11 +104,10 @@ public class Config {
         } catch (IOException ioException) {
             return false;
         }
-
     }
 
-    public boolean isFilePresent(Context context, String fileName) {
-        String path = context.getFilesDir().getAbsolutePath() + "/" + fileName;
+    public static boolean isFilePresent(String fileName) {
+        String path = contextOwner.getFilesDir().getAbsolutePath() + "/" + fileName;
         File file = new File(path);
         return file.exists();
     }

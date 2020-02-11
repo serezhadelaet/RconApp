@@ -35,13 +35,12 @@ public class NewServerActivity extends Activity {
 
                 if (!name.isEmpty() && !ip.isEmpty() && !port.isEmpty() && !pass.isEmpty()){
 
-                    com.example.rconapp.Config.Server server =
-                            new Config.Server(name, ip, port, pass);
-                    MainActivity.Instance.Config.ServerList.add(server);
+                    Config.Server server = new Config.Server(name, ip, port, pass);
+                    Config.getConfig().ServerList.add(server);
                     MainActivity.Instance.UpdateMenu();
                     MainActivity.rconManager.add(server);
+                    Config.saveConfig();
                 }
-                MainActivity.Instance.loadOrSaveConfg(true);
                 // Hide a keyboard
                 View view = getCurrentFocus();
                 if (view != null) {

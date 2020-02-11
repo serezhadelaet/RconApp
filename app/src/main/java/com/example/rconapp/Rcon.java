@@ -1,7 +1,6 @@
 package com.example.rconapp;
 
 import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.neovisionaries.ws.client.*;
@@ -13,11 +12,11 @@ public class Rcon extends LightBehaviour {
 
     public WebSocket socket;
 
-    private Config.Server server;
+    public Config.Server server;
 
     public ServerInfo serverInfo;
 
-    private boolean isDisconnected = true;
+    public boolean isDisconnected = true;
 
     public class ServerInfo {
         public int Online;
@@ -36,91 +35,11 @@ public class Rcon extends LightBehaviour {
         }
     }
 
-    private Boolean IsPlayersInfo(String data) {
-        try {
-            if (data == null || data.isEmpty()) return false;
-            Map<String, String> dic = new Gson().fromJson(data, Map.class);
-            if (!dic.containsKey("Message")) return false;
-            List<LinkedTreeMap<String, Object>> players = new Gson().fromJson(dic.get("Message"), List.class);
-            if (players == null) return false;
-            MainActivity.Instance.AddOrUpdatePlayers(server, players);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    private Boolean IsMessageFiltered(String message){
-        if (MainActivity.Config.FilteredMessages.length() == 0) return false;
-        String[] filtered = MainActivity.Config.FilteredMessages.split(",");
-        for (int i = 0; i < filtered.length; i++) {
-            String pr = filtered[i];
-            if (message.contains(pr)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Boolean OnСhatMessage(String data) {
-        if (MainActivity.Config.ChatPrefixes.length() == 0) return false;
-        String[] prefixes = MainActivity.Config.ChatPrefixes.split(",");
-
-        for (int i = 0; i < prefixes.length; i++) {
-            String pr = prefixes[i];
-            if (data.contains(pr)) {
-                MainActivity.Instance.OutputChat(server.Name, data);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Boolean IsServerInfo(String data) {
-        try {
-            if (data == null || data.isEmpty()) return false;
-            Map<String, String> dic = new Gson().fromJson(data, Map.class);
-            if (!dic.containsKey("Message")) return false;
-            Map<String, Object> message = new Gson().fromJson(dic.get("Message"), Map.class);
-            if (!message.containsKey("Framerate") && !message.containsKey("Players") && !message.containsKey("MaxPlayers")) return false;
-            boolean needUpd = false;
-            int fps = new Double(message.get("Framerate").toString()).intValue();
-            int online = new Double(message.get("Players").toString()).intValue();
-            int maxOnline = new Double(message.get("MaxPlayers").toString()).intValue();
-            if (fps != serverInfo.FPS) {
-                serverInfo.FPS = fps;
-                needUpd = true;
-            }
-            if (fps != serverInfo.Online) {
-                serverInfo.Online = online;
-                needUpd = true;
-            }
-            if (fps != serverInfo.MaxOnline) {
-                serverInfo.MaxOnline = maxOnline;
-                needUpd = true;
-            }
-            if (needUpd)
-                MainActivity.Instance.UpdateOnline();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    @Override
-    public void Update() {
-        if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
-            Send("playerlist");
-            Send("serverinfo");
-        }
-        Reconnect();
-    }
-
     private int lastIdentificator = 1001;
 
     public void OnActivityChange() {
         if (server.Enabled) {
-            Reconnect();
+            reconnect();
         }
         else {
             Disconnect();
@@ -134,104 +53,119 @@ public class Rcon extends LightBehaviour {
         socket.sendText(new Gson().toJson(packet));
     }
 
-    public Rcon(final Config.Server server) {
-        serverInfo = new ServerInfo();
-        this.server = server;
-        WebSocketFactory factory = new WebSocketFactory();
-        try{
-            Log.d("Rcon","ws://" + server.IP + ":" + server.Port + "/" + server.Password);
-            socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
-        }catch (IOException ex){
-            if (MainActivity.Instance != null)
-                MainActivity.Output(server,"Error" + ex);
-            return;
+    public void onTextMessage(String message, String[] messages){
+
+    }
+
+    public void onError(String message){
+
+    }
+
+    public void onConnected(){
+
+    }
+
+    public void onConnectedError(String error){
+
+    }
+
+    public void onDisconnected(){
+
+    }
+
+    public String[] GetMessages(Map<String, String> map) {
+        String msg = null;
+        String[] output;
+        if (map.containsKey("Message")) {
+            msg = map.get("Message");
+            output = new String[] {msg};
+            return output;
         }
+        if (map.containsKey("Error"))
+            msg = map.get("Error");
+        if (map.containsKey("Generic"))
+            msg = map.get("Generic");
+        if (map.containsKey("0"))
+            msg = map.get("0");
+        if (msg != null && !msg.isEmpty()) {
+            output = new String[] {msg};
+            return output;
+            //OnСhatMessage(msg);
+            //if (!IsMessageFiltered(msg))
+                //MainActivity.Output(server, msg);
+        }
+        else{
+            output = new String[map.size()];
+            int index = 0;
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                String value = entry.getValue();
+                if (value.isEmpty()) continue;
+                output[index] = value;
+            }
+        }
+        return output;
+    }
+
+    public void initListeners() {
         socket.addListener(new WebSocketAdapter() {
             @Override
-            public void onTextMessage(WebSocket websocket, String message) throws Exception {
-                if (IsPlayersInfo(message)) return;
-                if (IsServerInfo(message)) return;
+            public void onTextMessage(WebSocket websocket, String message) {
                 Map<String, String> dic = new Gson().fromJson(message, Map.class);
-                if (dic.size() == 1 && dic.containsKey("Identifier")) {
+                // Ignoring empty messages
+                if (dic.size() == 1 && dic.containsKey("Identifier"))
                     return;
-                }
-                String msg = null;
-                if (dic.containsKey("Message")) {
-                    msg = dic.get("Message");
-                    try {
-                        Map<String, String> friendMessage =
-                                new Gson().fromJson(dic.get("Message"), Map.class);
-                        if (friendMessage.containsKey("Channel")) {
-                            String friendMsg = "[TEAM CHAT] " + friendMessage.get("Username") + ": " +
-                                    friendMessage.get("Message");
-                            MainActivity.Instance.OutputChat(server.Name, friendMsg);
-                            return;
-                        }
-                    } catch(Exception ex) { }
-                }
-                if (dic.containsKey("Error"))
-                    msg = dic.get("Error");
-                if (dic.containsKey("Generic"))
-                    msg = dic.get("Generic");
-                if (dic.containsKey("0"))
-                    msg = dic.get("0");
-                if (msg != null && !msg.isEmpty()) {
-                    OnСhatMessage(msg);
-                    if (!IsMessageFiltered(msg))
-                        MainActivity.Output(server, msg);
-                }
-                else{
-                    for (Map.Entry<String, String> entry : dic.entrySet()) {
-                        String value = entry.getValue();
-                        if (value.isEmpty()) continue;
-                        OnСhatMessage(value);
-                        if (!IsMessageFiltered(value))
-                            MainActivity.Output(server, value);
-                    }
-                }
+                String[] messages = GetMessages(dic);
+                Rcon.this.onTextMessage(message, messages);
             }
         });
+
         socket.addListener(new WebSocketAdapter() {
             @Override
             public void onError(WebSocket websocket, WebSocketException cause) {
-                if (isDisconnected) return;
-                isDisconnected = true;
-                MainActivity.Instance.UpdateServers();
-                MainActivity.Output(server,"Connection problem. Trying to reconnect...");
+                Rcon.this.onError(cause.toString());
+
             }
         });
         socket.addListener(new WebSocketAdapter() {
             @Override
             public void onConnected(WebSocket websocket, Map<String, List<String>> headers) {
-                isDisconnected = false;
-                Update();
-                MainActivity.Instance.UpdateServers();
-                MainActivity.Output(server,"Connected");
+                Rcon.this.onConnected();
+
             }
         });
         socket.addListener(new WebSocketAdapter() {
             @Override
             public void onConnectError(WebSocket websocket, WebSocketException cause) {
-                if (isDisconnected) return;
-                isDisconnected = true;
-                MainActivity.Instance.UpdateServers();
-                MainActivity.Output(server,"onConnectError " + cause);
+                onConnectedError(cause.toString());
+
             }
         });
         socket.addListener(new WebSocketAdapter() {
             @Override
             public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame,
                                        WebSocketFrame clientCloseFrame, boolean closedByServer) {
-                if (isDisconnected) return;
-                if (isAppQuiting) return;
-                isDisconnected = true;
-                MainActivity.Instance.AddOrUpdatePlayers(server, null);
-                MainActivity.Instance.UpdateServers();
-                MainActivity.Output(server,"Disconnected");
+                Rcon.this.onDisconnected();
+
             }
         });
+    }
+
+    public void createSocket(){
+
+    }
+
+    public void connect(){
         if (server.Enabled)
             socket.connectAsynchronously();
+    }
+
+    public Rcon(){
+
+    }
+
+    public Rcon(Config.Server server) {
+        serverInfo = new ServerInfo();
+        this.server = server;
     }
 
     public static Boolean isAppQuiting = false;
@@ -243,7 +177,7 @@ public class Rcon extends LightBehaviour {
         }
     }
 
-    private void Reconnect() {
+    public void reconnect() {
         if (isAppQuiting) return;
         if (socket.getState() == WebSocketState.OPEN ||
                 socket.getState() == WebSocketState.CONNECTING) return;

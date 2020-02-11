@@ -58,7 +58,7 @@ public class EditServerActivity extends Activity {
                     MainActivity.Instance.UpdateMenu();
                     MainActivity.rconManager.add(serverToEdit);
                 }
-                MainActivity.Instance.loadOrSaveConfg(true);
+                Config.saveConfig();
                 // Hide a keyboard
                 View view = getCurrentFocus();
                 if (view != null) {

@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,8 +68,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static MainActivity Instance;
 
     public static LinearLayout linearLayoutConsoleInput;
-
-    public static Config Config;
 
     public static RconManager rconManager;
 
@@ -123,12 +122,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         //If we click on a settings button
-        if (id == Config.ServerList.size()) {
+        if (id == Config.getConfig().ServerList.size()) {
             startActivity(new Intent(this, SettingsActivity.class));
 
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            Config.Server server = Config.ServerList.get(id);
+            Config.Server server = Config.getConfig().ServerList.get(id);
             server.Enabled = !server.Enabled;
             RconManager.Rcons.get(server).OnActivityChange();
             UpdateServers();
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 item.setIcon(R.drawable.ic_check_box_24px);
             else
                 item.setIcon(R.drawable.ic_check_box_outline_blank_24px);
-            loadOrSaveConfg(true);
+            Config.saveConfig();
         }
         return true;
     }
@@ -169,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         protected Bitmap doInBackground(String... str) {
             String ids = TextUtils.join(",", steams);
-            String link = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Config.SteamAPIKey + "&steamids=" + ids;
+            String link = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Config.getConfig().SteamAPIKey + "&steamids=" + ids;
             String parsedPage = "";
             try {
                 URL url = new URL(link);
@@ -338,10 +337,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Intent serviceIntent;
 
-    private void StartService(){
+    private AppService service;
+
+    private void CreateService() {
         if (serviceIntent != null) return;
         serviceIntent = new Intent(getApplicationContext(), AppService.class);
         getApplicationContext().startService(serviceIntent);
+    }
+
+    private void enableService(){
+        AppService.setEnable();
+    }
+
+    private void disableService(){
+        AppService.setDisable();
     }
 
     @Override
@@ -351,7 +360,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (Instance == null)
             Instance = this;
 
-        StartService();
+        // Setting up an app service
+        CreateService();
+
+        // And instantly disable the service if it's already enabled
+        disableService();
+
+        // Here we saying all next config iterations will be provided by this context
+        Config.contextOwner = getApplicationContext();
 
         drawer = (DrawerLayout) findViewById(R.id.container);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -380,9 +396,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         getSupportActionBar().hide();
-        if (Config == null)
-            Config = new Config();
-        loadOrSaveConfg(false);
+        //if (Config == null)
+            //Config = new Config();
 
         if (playerList == null)
             playerList = new ArrayList<>();
@@ -498,11 +513,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navigationViewMenu = navigationView.getMenu();
 
-        if (rconManager == null)
-            rconManager = new RconManager();
+        Config config = Config.getConfig();
 
-        for (int i = 0; i < Config.ServerList.size(); i++) {
-            Config.Server server = Config.ServerList.get(i);
+        if (serviceIntent != null)
+            getApplicationContext().stopService(serviceIntent);
+        RconManager.removeAll();
+
+        for (int i = 0; i < config.ServerList.size(); i++) {
+            Config.Server server = config.ServerList.get(i);
             RconManager.add(server);
         }
 
@@ -525,52 +543,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void UpdateMenu(){
         navigationViewMenu.clear();
-        Collections.sort(Config.ServerList, new ServerSorter());
-        for (int i = 0; i < Config.ServerList.size(); i++) {
-            Config.Server server = Config.ServerList.get(i);
+        Config config = Config.getConfig();
+        Collections.sort(config.ServerList, new ServerSorter());
+        for (int i = 0; i < config.ServerList.size(); i++) {
+            Config.Server server = config.ServerList.get(i);
             MenuItem item = navigationViewMenu.add(0, i, 0, server.Name);
             if (server.Enabled)
                 item.setIcon(R.drawable.ic_check_box_24px);
             else
                 item.setIcon(R.drawable.ic_check_box_outline_blank_24px);
         }
-        MenuItem settings = navigationViewMenu.add(1, Config.ServerList.size(), 0, "Settings");
+        MenuItem settings = navigationViewMenu.add(1, config.ServerList.size(), 0, "Settings");
         settings.setIcon(android.R.drawable.ic_menu_preferences);
-    }
-
-    public void loadOrSaveConfg(Boolean save) {
-        boolean isFilePresent = Config.isFilePresent(getApplicationContext(), "storage6.json");
-
-        if (save || !isFilePresent) {
-            String json = new Gson().toJson(Config);
-            Config.write(getApplicationContext(), "storage6.json", json);
-        }
-        if (!save) {
-            try{
-                String jsonString = Config.read(getApplicationContext(), "storage6.json");
-                Config = new Gson().fromJson(jsonString, Config.class);
-            }
-            catch (Exception ex){
-
-            }
-        }
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        //getApplicationContext().stopService(serviceIntent);
         rconManager.removeAll();
+        enableService();
+        super.onDestroy();
         finishAffinity();
         System.exit(0);
     }
 
     @Override
     public void onBackPressed() {
-        //getApplicationContext().stopService(serviceIntent);
-        rconManager.removeAll();
-        finishAffinity();
-        System.exit(0);
+        finish();
+        //finishAffinity();
+        //System.exit(0);
     }
 
     private TextView menuOnline;
@@ -583,8 +583,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void run() {
                 int online = 0;
                 int onlineMax = 0;
-                for (int i = 0; i < Config.ServerList.size(); i++) {
-                    Config.Server server = Config.ServerList.get(i);
+                Config config = Config.getConfig();
+                for (int i = 0; i < config.ServerList.size(); i++) {
+                    Config.Server server = config.ServerList.get(i);
                     Rcon rcon = rconManager.Rcons.get(server);
                     if (rcon == null) continue;
                     MenuItem item = navigationViewMenu.getItem(i);
