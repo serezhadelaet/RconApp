@@ -21,7 +21,6 @@ public class Config {
     public List<Server> ServerList = new ArrayList<>();
     public String FilteredMessages = "";
     public String ChatPrefixes = "";
-    public static String TriggerMessages = "[xChat]";
 
     public static class Server {
         public String Name;

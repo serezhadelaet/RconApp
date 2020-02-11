@@ -5,15 +5,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 
 public class Notifications {
 
-    public Notifications(){
+    public Notifications() {
 
     }
 
-    public static void Create(Context context, String title, String text){
+    public static void Create(final Context context, final String title, final String text) {
 
         final Intent emptyIntent = new Intent();
         PendingIntent pendingIntent = PendingIntent.getActivity(context, PendingIntent.FLAG_ONE_SHOT, emptyIntent, PendingIntent.FLAG_UPDATE_CURRENT);

@@ -2,7 +2,6 @@ package com.example.rconapp;
 
 import android.util.Log;
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import com.neovisionaries.ws.client.*;
 import java.io.IOException;
 import java.util.Map;
@@ -150,13 +149,16 @@ public class Rcon extends LightBehaviour {
         });
     }
 
-    public void createSocket(){
+    public void createSocket() {
 
     }
 
     public void connect(){
-        if (server.Enabled)
-            socket.connectAsynchronously();
+        try{
+            if (server.Enabled)
+                socket.connectAsynchronously();
+
+        } catch (Exception ex){}
     }
 
     public Rcon(){

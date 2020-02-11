@@ -1,5 +1,11 @@
 package com.example.rconapp;
 
+import android.util.Log;
+
+import com.neovisionaries.ws.client.WebSocketFactory;
+
+import java.io.IOException;
+
 public class RconService extends Rcon {
 
     public RconService(Config.Server server) {
@@ -7,23 +13,34 @@ public class RconService extends Rcon {
     }
 
     @Override
+    public void createSocket(){
+        WebSocketFactory factory = new WebSocketFactory();
+        try{
+            socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
+        } catch (IOException ex){
+            Notifications.Create(AppService.Instance.getApplicationContext(), "Connect error", server.Name);
+            return;
+        }
+        initListeners();
+        connect();
+        Notifications.Create(AppService.Instance.getApplicationContext(), "Create", server.Name);
+    }
+
+    @Override
     public void onTextMessage(String message, String[] messages){
         super.onTextMessage(message, messages);
-        if (message.contains(Config.TriggerMessages)){
-            Notifications.Create(AppService.Instance, messages[0], messages[0]);
-        }
+        Notifications.Create(AppService.Instance.getApplicationContext(), messages[0], messages[0]);
     }
-    int i = 0;
+
     @Override
     public void Update() {
         super.Update();
-        Notifications.Create(AppService.Instance, "Updated: " + i, "");
-        i++;
     }
 
     @Override
     public void onConnected() {
         super.onConnected();
+        Notifications.Create(AppService.Instance.getApplicationContext(), "Connected", server.Name);
     }
 
     @Override
