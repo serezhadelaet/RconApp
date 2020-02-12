@@ -3,55 +3,66 @@ package com.example.rconapp;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AppService extends Service {
 
         public static AppService Instance;
-        private HandlerThread mHandlerThread;
-        private Handler mHandler;
-        public static boolean isEnabled = false;
+
+        public static Handler handler;
+
+        public static class History{
+            public Config.Server Server;
+            public String Message;
+
+            public History(Config.Server server, String message){
+                Server = server;
+                Message = message;
+            }
+        }
+
+        public static List<History> MessagesHistory = new ArrayList<>();
+        public static boolean isEnabled;
         public static Integer i = 0;
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            // Here we saying all next config iterations will be provided by this context
-            Config.contextOwner = getApplicationContext();
-
+            isEnabled = false;
             if (Instance == null) {
                 Instance = this;
-                mHandlerThread = new HandlerThread("LocalServiceThread");
-                mHandlerThread.start();
-
-                mHandler = new Handler(mHandlerThread.getLooper());
-                // TODO something
-
+                handler = new Handler(Looper.getMainLooper());
+                if (MainActivity.Instance == null)
+                    setEnable();
             }
             return Service.START_STICKY;
         }
 
-        public void postRunnable(Runnable runnable) {
-            mHandler.post(runnable);
+        public static void runOnUiThread(Runnable runnable){
+            handler.post(runnable);
         }
 
         public static void setEnable(){
-            if (Instance == null) return;
+            if (Instance == null || isEnabled) return;
             isEnabled = true;
             runRcons();
         }
 
         public static void setDisable(){
-            if (Instance == null) return;
+            if (Instance == null || !isEnabled) return;
             isEnabled = false;
+            RconManager.removeAll();
         }
 
         private static void runRcons() {
-            Log.d("d", "runRcons");
+
             // Here we saying all next config iterations will be provided by this context
             Config.contextOwner = Instance.getApplicationContext();
+
+            RconManager.removeAll();
 
             Config config = Config.getConfig();
             for (int i = 0; i < config.ServerList.size(); i++) {

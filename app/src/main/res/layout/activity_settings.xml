@@ -66,6 +66,19 @@
              android:tooltipText="Chat prefixes"
              android:id="@+id/server_add_chatprefixes"
              android:textAlignment="center"/>
+         <TextView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="Notification messages"
+             android:textAlignment="center"
+             android:textSize="16dp"/>
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:textSize="16dp"
+             android:tooltipText="Notification messages"
+             android:id="@+id/server_add_notifymessages"
+             android:textAlignment="center"/>
          <Button
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"

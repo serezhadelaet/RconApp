@@ -1,5 +1,7 @@
 package com.example.rconapp;
 
+import com.neovisionaries.ws.client.WebSocketState;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,18 +37,36 @@ public class RconManager {
     public static void remove(Config.Server server) {
         if (Rcons.containsKey(server)){
             Rcon rcon = Rcons.get(server);
-            rcon.Disconnect();
+            rcon.Disconnect(true);
             rcon.Destroy();
             Rcons.remove(server);
         }
     }
 
+    public static int GetOverallOnline(){
+        int online = 0;
+        for (Map.Entry<Config.Server, Rcon> entry : Rcons.entrySet()) {
+            Rcon rcon = entry.getValue();
+            online+=rcon.serverInfo.Online;
+        }
+        return online;
+    }
+
+    public static int GetOverallConnectedServers(){
+        int online = 0;
+        for (Map.Entry<Config.Server, Rcon> entry : Rcons.entrySet()) {
+            Rcon rcon = entry.getValue();
+            if (rcon.socket.getState() == WebSocketState.OPEN)
+                online++;
+        }
+        return online;
+    }
+
     public static void removeAll(){
-        Rcon.isAppQuiting = true;
         for (Map.Entry<Config.Server, Rcon> entry : Rcons.entrySet()) {
             Rcon rcon = entry.getValue();
             rcon.Destroy();
-            rcon.Disconnect();
+            rcon.Disconnect(true);
         }
         Rcons.clear();
     }

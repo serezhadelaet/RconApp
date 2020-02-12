@@ -5,29 +5,61 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 
 public class Notifications {
+
+    private static int notificationId = 2;
 
     public Notifications() {
 
     }
 
-    public static void Create(final Context context, final String title, final String text) {
+    public static void CreateOnGoing(final Context context, final String text) {
 
-        final Intent emptyIntent = new Intent();
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, PendingIntent.FLAG_ONE_SHOT, emptyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AppService.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final Intent mainActivityIntent = new Intent(context, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, mainActivityIntent, 0);
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_chat_24px)
-                        .setContentTitle(title)
-                        .setContentText(text)
-                        .setContentIntent(pendingIntent);
-        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(context)
+                                .setSmallIcon(R.drawable.ic_notify_app)
+                                .setContentTitle("RconApp")
+                                .setContentText(text)
+                                .setOngoing(true)
+                                .setContentIntent(pendingIntent);
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(1, mBuilder.build());
+            }
+        });
+    }
+
+    public static void RemoveOnGoing(final Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, mBuilder.build());
+        notificationManager.cancelAll();
+    }
+
+    public static void Create(final Context context, final String title, final String text) {
+        AppService.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final Intent mainActivityIntent = new Intent(context, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, mainActivityIntent, 0);
+
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(context)
+                                .setSmallIcon(R.drawable.ic_notify_app)
+                                .setContentTitle(title)
+                                .setContentText(text)
+                                .setContentIntent(pendingIntent);
+                mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(notificationId, mBuilder.build());
+                notificationId++;
+            }
+        });
+
     }
 }

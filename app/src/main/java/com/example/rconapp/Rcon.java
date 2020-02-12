@@ -4,6 +4,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class Rcon extends LightBehaviour {
             reconnect();
         }
         else {
-            Disconnect();
+            Disconnect(false);
         }
     }
 
@@ -70,6 +71,12 @@ public class Rcon extends LightBehaviour {
 
     public void onDisconnected(){
 
+    }
+
+    public String[] GetFilteredMessages(String original){
+        if (original.length() == 0) return new String[0];
+        String[] filtered = original.split(",");
+        return filtered;
     }
 
     public String[] GetMessages(Map<String, String> map) {
@@ -170,9 +177,10 @@ public class Rcon extends LightBehaviour {
         this.server = server;
     }
 
-    public static Boolean isAppQuiting = false;
+    public boolean isSilentDisconnect = false;
 
-    public void Disconnect() {
+    public void Disconnect(boolean silent) {
+        isSilentDisconnect = silent;
         if (socket != null && (socket.getState() != WebSocketState.CLOSED ||
                 socket.getState() != WebSocketState.CLOSING)) {
             socket.disconnect(0, "by user", 0);
@@ -180,7 +188,7 @@ public class Rcon extends LightBehaviour {
     }
 
     public void reconnect() {
-        if (isAppQuiting) return;
+        if (isSilentDisconnect) return;
         if (socket.getState() == WebSocketState.OPEN ||
                 socket.getState() == WebSocketState.CONNECTING) return;
         if (!server.Enabled) return;

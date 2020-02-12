@@ -62,7 +62,7 @@ public class SettingsActivity extends Activity {
                     public boolean onLongClick(View v) {
                         Config.getConfig().ServerList.remove(server);
                         Config.saveConfig();
-                        MainActivity.rconManager.remove(server);
+                        RconManager.remove(server);
                         MainActivity.Instance.UpdateMenu();
                         UpdateServersList();
                         return false;
@@ -112,12 +112,14 @@ public class SettingsActivity extends Activity {
         final EditText eSteamAPI = (EditText)findViewById(R.id.server_add_steamapi);
         final EditText eFilter = (EditText)findViewById(R.id.server_add_wordsfilter);
         final EditText ePrefixes = (EditText)findViewById(R.id.server_add_chatprefixes);
+        final EditText eNotify = (EditText)findViewById(R.id.server_add_notifymessages);
 
         final Config config = Config.getConfig();
 
         eSteamAPI.setText(config.SteamAPIKey);
         eFilter.setText(config.FilteredMessages);
         ePrefixes.setText(config.ChatPrefixes);
+        eNotify.setText(config.NotificationMessages);
 
         UpdateServersList();
 
@@ -129,6 +131,7 @@ public class SettingsActivity extends Activity {
                 config.SteamAPIKey = eSteamAPI.getText().toString();
                 config.FilteredMessages = eFilter.getText().toString();
                 config.ChatPrefixes = ePrefixes.getText().toString();
+                config.NotificationMessages = eNotify.getText().toString();
 
                 Config.saveConfig();
 

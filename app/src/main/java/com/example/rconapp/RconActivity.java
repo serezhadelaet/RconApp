@@ -142,7 +142,7 @@ public class RconActivity extends Rcon {
         isDisconnected = false;
         Update();
         MainActivity.Instance.UpdateServers();
-        MainActivity.Output(server,"Connected");
+        //MainActivity.Output(server,"Connected");
     }
 
     @Override
@@ -158,8 +158,8 @@ public class RconActivity extends Rcon {
     public void onDisconnected() {
         super.onDisconnected();
         if (isDisconnected) return;
-        if (isAppQuiting) return;
         isDisconnected = true;
+        if (isSilentDisconnect) return;
         MainActivity.Instance.AddOrUpdatePlayers(server, null);
         MainActivity.Instance.UpdateServers();
         MainActivity.Output(server,"Disconnected");

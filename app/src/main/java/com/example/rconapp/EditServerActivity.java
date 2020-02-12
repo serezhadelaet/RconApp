@@ -48,7 +48,7 @@ public class EditServerActivity extends Activity {
                 String pass = ePass.getText().toString();
                 if (!name.isEmpty() && !ip.isEmpty() && !port.isEmpty() && !pass.isEmpty()){
 
-                    MainActivity.rconManager.remove(serverToEdit);
+                    RconManager.remove(serverToEdit);
 
                     serverToEdit.Name = name;
                     serverToEdit.Password = pass;
@@ -56,7 +56,7 @@ public class EditServerActivity extends Activity {
                     serverToEdit.Port = port;
 
                     MainActivity.Instance.UpdateMenu();
-                    MainActivity.rconManager.add(serverToEdit);
+                    RconManager.add(serverToEdit);
                 }
                 Config.saveConfig();
                 // Hide a keyboard

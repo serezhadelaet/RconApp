@@ -38,7 +38,7 @@ public class NewServerActivity extends Activity {
                     Config.Server server = new Config.Server(name, ip, port, pass);
                     Config.getConfig().ServerList.add(server);
                     MainActivity.Instance.UpdateMenu();
-                    MainActivity.rconManager.add(server);
+                    RconManager.add(server);
                     Config.saveConfig();
                 }
                 // Hide a keyboard

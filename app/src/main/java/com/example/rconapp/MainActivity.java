@@ -69,7 +69,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static LinearLayout linearLayoutConsoleInput;
 
-    public static RconManager rconManager;
+    private List<Player> playerList;
+    private PlayersAdapter adapter;
+
+    private DrawerLayout drawer;
+
+    private Intent serviceIntent;
+
+    private AppService service;
 
     private Boolean isPlayersOpened = false;
 
@@ -126,7 +133,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, SettingsActivity.class));
 
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else if (id == Config.getConfig().ServerList.size()+1) {
+            getApplicationContext().stopService(serviceIntent);
+            finishAffinity();
+            System.exit(0);
+        }
+        else {
             Config.Server server = Config.getConfig().ServerList.get(id);
             server.Enabled = !server.Enabled;
             RconManager.Rcons.get(server).OnActivityChange();
@@ -330,15 +343,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private List<Player> playerList;
-    private PlayersAdapter adapter;
-
-    private DrawerLayout drawer;
-
-    private Intent serviceIntent;
-
-    private AppService service;
-
     private void CreateService() {
         if (serviceIntent != null) return;
         serviceIntent = new Intent(getApplicationContext(), AppService.class);
@@ -353,130 +357,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppService.setDisable();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        if (Instance == null)
-            Instance = this;
-
-        // Setting up an app service
-        CreateService();
-
-        // And instantly disable the service if it's already enabled
-        disableService();
-
-        // Here we saying all next config iterations will be provided by this context
-        Config.contextOwner = getApplicationContext();
-
-        drawer = (DrawerLayout) findViewById(R.id.container);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+    private void InitChatOutput(){
 
         chatOutput = (TextView) findViewById(R.id.chatOutput);
-        scrollViewChat = (ScrollView) findViewById(R.id.scrollViewChat);
-        linearLayoutConsoleInput = (LinearLayout) findViewById(R.id.consoleInputLayout);
-
-        try{
-            Field mDragger = drawer.getClass().getDeclaredField(
-                    "mLeftDragger");//mRightDragger for right obviously
-            mDragger.setAccessible(true);
-            ViewDragHelper draggerObj = (ViewDragHelper) mDragger
-                    .get(drawer);
-
-            Field mEdgeSize = draggerObj.getClass().getDeclaredField(
-                    "mEdgeSize");
-            mEdgeSize.setAccessible(true);
-            int edge = mEdgeSize.getInt(draggerObj);
-
-            mEdgeSize.setInt(draggerObj, edge * 5);
-        }
-        catch (Exception ex){
-
-        }
-
-        getSupportActionBar().hide();
-        //if (Config == null)
-            //Config = new Config();
-
-        if (playerList == null)
-            playerList = new ArrayList<>();
-        consoleInput = (EditText) findViewById(R.id.consoleInput);
-
-        consoleInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    String prefix = "";
-                    if (scrollViewChat.getVisibility() == View.VISIBLE){
-                        prefix+="say ";
-                    }
-                    String text = consoleInput.getText().toString();
-                    SendToRcons(prefix + text);
-                    consoleInput.setText("");
-                    consoleInput.requestFocus();
-                    if (prefix != ""){
-                        OutputChat("You", text);
-                    }
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-        tableView = (SortableTableView) findViewById(R.id.tableView);
-        if (adapter == null)
-            adapter = new PlayersAdapter(this, playerList);
-        tableView.setDataAdapter(adapter);
-        tableView.setColumnComparator(0, new PlayerServerComparator());
-        tableView.setColumnComparator(1, new PlayerNameComparator());
-        tableView.setColumnComparator(2, new PlayerTimeComparator());
-        tableView.setHeaderBackgroundColor(getResources().getColor(R.color.colorAccent));
-        SimpleTableHeaderAdapter headerAdapter = new SimpleTableHeaderAdapter(this, new String[] { "#", "Player", "Info" });
-        headerAdapter.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        TableColumnWeightModel columnModel = new TableColumnWeightModel(3);
-        columnModel.setColumnWeight(0, 1);
-        columnModel.setColumnWeight(1, 7);
-        columnModel.setColumnWeight(2, 2);
-        tableView.setColumnModel(columnModel);
-        headerAdapter.setPaddings(1,1,1,1);
-        tableView.setHeaderAdapter(headerAdapter);
-        tableView.addDataClickListener(new PlayersClickListener());
-        tableView.setVisibility(View.INVISIBLE);
-        scrollView = (ScrollView) findViewById(R.id.scrollView);
-        mainOutput = (TextView) findViewById(R.id.mainOutput);
-        mainOutput.addTextChangedListener(new TextWatcher() {
-
-              private int lastValue;
-
-              @Override
-              public void afterTextChanged(Editable arg0) {
-                  Scroll();
-              }
-
-              @Override
-              public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                  lastValue = scrollView.getChildAt(0).getHeight() - scrollView.getHeight();
-                  Scroll();
-              }
-
-              @Override
-              public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                  Scroll();
-              }
-
-              private void Scroll(){
-                  scrollView.post(new Runnable() {
-                      @Override
-                      public void run() {
-                          if (lastValue - scrollView.getScrollY() < -150)
-                              scrollView.fullScroll(View.FOCUS_DOWN);
-                      }
-                  });
-              }
-        });
-
         chatOutput.addTextChangedListener(new TextWatcher() {
 
             private int lastValue;
@@ -508,6 +391,157 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+    }
+
+    private void InitConsoleInput(){
+
+        consoleInput = (EditText) findViewById(R.id.consoleInput);
+
+        consoleInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                String prefix = "";
+                if (scrollViewChat.getVisibility() == View.VISIBLE){
+                    prefix+="say ";
+                }
+                String text = consoleInput.getText().toString();
+                SendToRcons(prefix + text);
+                consoleInput.setText("");
+                consoleInput.requestFocus();
+                if (prefix != ""){
+                    OutputChat("You", text);
+                }
+                handled = true;
+            }
+            return handled;
+        }
+        });
+    }
+
+    private void InitTableView(){
+
+        tableView = (SortableTableView) findViewById(R.id.tableView);
+        tableView.addDataClickListener(new PlayersClickListener());
+        adapter = new PlayersAdapter(Instance, playerList);
+        tableView.setDataAdapter(adapter);
+        tableView.setColumnComparator(0, new PlayerServerComparator());
+        tableView.setColumnComparator(1, new PlayerNameComparator());
+        tableView.setColumnComparator(2, new PlayerTimeComparator());
+        tableView.setHeaderBackgroundColor(getResources().getColor(R.color.colorAccent));
+        SimpleTableHeaderAdapter headerAdapter = new SimpleTableHeaderAdapter(Instance, new String[]{"#", "Player", "Info"});
+        headerAdapter.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        TableColumnWeightModel columnModel = new TableColumnWeightModel(3);
+        columnModel.setColumnWeight(0, 1);
+        columnModel.setColumnWeight(1, 7);
+        columnModel.setColumnWeight(2, 2);
+        tableView.setColumnModel(columnModel);
+        headerAdapter.setPaddings(1, 1, 1, 1);
+        tableView.setHeaderAdapter(headerAdapter);
+        tableView.setVisibility(View.INVISIBLE);
+    }
+
+    private void InitMainOutput(){
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
+        mainOutput = (TextView) findViewById(R.id.mainOutput);
+        mainOutput.addTextChangedListener(new TextWatcher() {
+
+            private int lastValue;
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                Scroll();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                lastValue = scrollView.getChildAt(0).getHeight() - scrollView.getHeight();
+                Scroll();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                Scroll();
+            }
+
+            private void Scroll(){
+                scrollView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (lastValue - scrollView.getScrollY() < -150)
+                            scrollView.fullScroll(View.FOCUS_DOWN);
+                    }
+                });
+            }
+        });
+    }
+
+    private void InitDrawer(){
+        drawer = (DrawerLayout) findViewById(R.id.container);
+        try{
+            Field mDragger = drawer.getClass().getDeclaredField(
+                    "mLeftDragger");//mRightDragger for right obviously
+            mDragger.setAccessible(true);
+            ViewDragHelper draggerObj = (ViewDragHelper) mDragger
+                    .get(drawer);
+
+            Field mEdgeSize = draggerObj.getClass().getDeclaredField(
+                    "mEdgeSize");
+            mEdgeSize.setAccessible(true);
+            int edge = mEdgeSize.getInt(draggerObj);
+
+            mEdgeSize.setInt(draggerObj, edge * 5);
+        }
+        catch (Exception ex){
+
+        }
+    }
+
+    Handler mainHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Instance = this;
+        mainHandler = new Handler(Looper.getMainLooper());
+        Notifications.RemoveOnGoing(getApplicationContext());
+
+        // Here we saying all next config iterations will be provided by this context
+        Config.contextOwner = getApplicationContext();
+
+        if (playerList == null)
+            playerList = new ArrayList<>();
+        playerList.clear();
+        // Setting up an app service
+        CreateService();
+
+        // Disable the service if it's already enabled
+        disableService();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        scrollViewChat = (ScrollView) findViewById(R.id.scrollViewChat);
+        linearLayoutConsoleInput = (LinearLayout) findViewById(R.id.consoleInputLayout);
+
+        InitChatOutput();
+        InitConsoleInput();
+        InitTableView();
+        InitMainOutput();
+        InitDrawer();
+
+        // Fitch history from service rcons
+        for (int i = 0; i < AppService.MessagesHistory.size(); i++){
+            AppService.History h = AppService.MessagesHistory.get(i);
+            Output(h.Server, h.Message);
+        }
+        AppService.MessagesHistory.clear();
+
+        getSupportActionBar().hide();
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -515,8 +549,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Config config = Config.getConfig();
 
-        if (serviceIntent != null)
-            getApplicationContext().stopService(serviceIntent);
         RconManager.removeAll();
 
         for (int i = 0; i < config.ServerList.size(); i++) {
@@ -555,22 +587,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         MenuItem settings = navigationViewMenu.add(1, config.ServerList.size(), 0, "Settings");
         settings.setIcon(android.R.drawable.ic_menu_preferences);
+        MenuItem exit = navigationViewMenu.add(2, config.ServerList.size()+1, 0, "Exit");
+        exit.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
     }
 
     @Override
     public void onDestroy() {
-        rconManager.removeAll();
+        RconManager.removeAll();
         enableService();
         super.onDestroy();
-        finishAffinity();
-        System.exit(0);
     }
 
     @Override
     public void onBackPressed() {
         finish();
-        //finishAffinity();
-        //System.exit(0);
+        super.onBackPressed();
+    }
+
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            if (drawer.isDrawerOpen(GravityCompat.START)){
+                drawer.closeDrawer(GravityCompat.START);
+            }
+            else
+                drawer.openDrawer(GravityCompat.START);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     private TextView menuOnline;
@@ -586,7 +629,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Config config = Config.getConfig();
                 for (int i = 0; i < config.ServerList.size(); i++) {
                     Config.Server server = config.ServerList.get(i);
-                    Rcon rcon = rconManager.Rcons.get(server);
+                    Rcon rcon = RconManager.Rcons.get(server);
                     if (rcon == null) continue;
                     MenuItem item = navigationViewMenu.getItem(i);
                     if (server.Enabled && rcon.socket != null && rcon.socket.getState() == WebSocketState.OPEN) {
@@ -614,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void run() {
                 int online = 0;
-                for (Map.Entry<Config.Server, Rcon> entry : rconManager.Rcons.entrySet()) {
+                for (Map.Entry<Config.Server, Rcon> entry : RconManager.Rcons.entrySet()) {
                     if (entry.getKey().Enabled) {
                         Rcon rcon = entry.getValue();
                         if (rcon == null) continue;
@@ -631,7 +674,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void SendToRcons(String command) {
         if (command.isEmpty()) return;
-        for (Map.Entry<Config.Server, Rcon> entry : rconManager.Rcons.entrySet()) {
+        for (Map.Entry<Config.Server, Rcon> entry : RconManager.Rcons.entrySet()) {
             if (entry.getKey().Enabled)
                 entry.getValue().Send(command);
         }
@@ -713,8 +756,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public class Utils {
 
         public void runOnUiThread(Runnable runnable){
-            final Handler UIHandler = new Handler(Looper.getMainLooper());
-            UIHandler .post(runnable);
+            mainHandler.post(runnable);
         }
     }
 
