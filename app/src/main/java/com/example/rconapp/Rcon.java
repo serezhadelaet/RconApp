@@ -73,7 +73,7 @@ public class Rcon extends LightBehaviour {
 
     }
 
-    public String[] GetFilteredMessages(String original){
+    public String[] GetFilteredMessages(String original) {
         if (original.length() == 0) return new String[0];
         String[] filtered = original.split(",");
         return filtered;
@@ -84,8 +84,10 @@ public class Rcon extends LightBehaviour {
         String[] output;
         if (map.containsKey("Message")) {
             msg = map.get("Message");
-            output = new String[] {msg};
-            return output;
+            if (!msg.isEmpty()){
+                output = new String[] {msg};
+                return output;
+            }
         }
         if (map.containsKey("Error"))
             msg = map.get("Error");
