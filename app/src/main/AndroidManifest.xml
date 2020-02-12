@@ -33,27 +33,36 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/appTitleName"
+            android:label="Settings"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.rconapp.MainActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
         <activity
             android:name=".NewServerActivity"
-            android:label="@string/appTitleName"
+            android:label="Adding a server"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.rconapp.SettingsActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
         <activity
             android:name=".EditServerActivity"
-            android:label="@string/appTitleName"
+            android:label="Editing the server"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.rconapp.SettingsActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>

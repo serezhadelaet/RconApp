@@ -16,18 +16,6 @@
          <TextView
              android:layout_width="match_parent"
              android:layout_height="wrap_content"
-             android:text="Settings"
-             android:textAlignment="center"
-             android:textSize="20dp"
-             android:paddingBottom="20dp"
-             android:paddingTop="20dp"
-             android:textColor="@color/colorAccent"
-             android:background="@color/colorPrimaryDark"
-             android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-         <TextView
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
              android:text="Steam API KEY"
              android:textAlignment="center"
              android:textSize="16dp"/>

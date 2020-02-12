@@ -1,11 +1,17 @@
 package com.example.rconapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
+
+import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -17,7 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.List;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends AppCompatActivity {
 
     public static SettingsActivity Instance;
 
@@ -91,7 +97,7 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
-    protected  void onResume(){
+    protected void onResume(){
         super.onResume();
         UpdateServersList();
     }
@@ -104,10 +110,29 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Instance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        getSupportActionBar().setTitle(Html.fromHtml("<font color=\"#DAE4E5\">Settings</font>"));
+
+        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
+        upArrow.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final EditText eSteamAPI = (EditText)findViewById(R.id.server_add_steamapi);
         final EditText eFilter = (EditText)findViewById(R.id.server_add_wordsfilter);

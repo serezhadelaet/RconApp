@@ -1,15 +1,19 @@
 package com.example.rconapp;
 
-import android.app.Activity;
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.Html;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class EditServerActivity extends Activity {
+public class EditServerActivity extends AppCompatActivity {
 
     public static Config.Server serverToEdit;
 
@@ -17,6 +21,12 @@ public class EditServerActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_server_edit);
+
+        getSupportActionBar().setTitle(Html.fromHtml("<font color=\"#DAE4E5\">Edit</font>"));
+
+        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
+        upArrow.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
 
         EditText eName = (EditText)findViewById(R.id.server_edit_name);
         eName.setText(serverToEdit.Name);
@@ -30,7 +40,7 @@ public class EditServerActivity extends Activity {
         EditText ePassword = (EditText)findViewById(R.id.server_edit_pass);
         ePassword.setText(serverToEdit.Password);
 
-        Button butOk = findViewById(R.id.server_edit_ok);
+        Button butOk = (Button)findViewById(R.id.server_edit_ok);
         butOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
