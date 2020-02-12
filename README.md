@@ -1,6 +1,16 @@
 # RconApp
 
-Usefull and simple android tool to manage more than one server at the same time
+Usefull and simple android tool to manage more than one RUST server at the same time
+
+## Features
+* Multiple servers management
+* Players list with options, like Mute/Kick/Ban/Steam link open
+* Separated console/chat tabs
+* Works in background as a service to get notifications
+* Filters: unwanted data, chat messages, messages that instantiate notifications
+
+## Builds
+* Latest release: [RconApp v0.0.1](https://github.com/serezhadelaet/RconApp/releases/tag/0.0.1)
 
 ## Requirements
 
@@ -13,3 +23,12 @@ Usefull and simple android tool to manage more than one server at the same time
 * [nv-websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websockets
 * [gson](https://github.com/google/gson) - Json
 * [SortableTableView](https://github.com/ISchwarz23/SortableTableView) - Tables
+
+## TODO
+* More complex players list with additional info about a player
+* Notifications with vibration, sound, LED options
+
+## Screenshots
+
+![Preview1](/preview1.jpg)
+![Preview2](/preview2.jpg)
