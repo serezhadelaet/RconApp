@@ -34,7 +34,7 @@ public class RconService extends Rcon {
 
         String[] filtered = GetFilteredMessages(Config.getConfig().NotificationMessages);
         for (int m = 0; m < messages.length; m++) {
-            if (AppService.MessagesHistory.size() == 300) {
+            if (AppService.MessagesHistory.size() >= 300) {
                 AppService.MessagesHistory.remove(0);
             }
             AppService.MessagesHistory.add(new AppService.History(server, messages[m]));

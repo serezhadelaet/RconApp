@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.os.Looper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AppService extends Service {
@@ -25,7 +26,7 @@ public class AppService extends Service {
             }
         }
 
-        public static List<History> MessagesHistory = new ArrayList<>();
+        public static List<History> MessagesHistory = Collections.synchronizedList(new ArrayList());
         public static boolean isEnabled;
         public static Integer i = 0;
 
