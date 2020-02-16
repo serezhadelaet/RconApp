@@ -73,7 +73,7 @@ public class Rcon extends LightBehaviour {
 
     }
 
-    public String getChatMessage(String original) {
+    public String getTeamChatMessage(String original){
         try {
             Map<String, String> friendMessage =
                     new Gson().fromJson(original, Map.class);
@@ -83,7 +83,10 @@ public class Rcon extends LightBehaviour {
                 return friendMsg;
             }
         } catch(Exception ex) { }
+        return null;
+    }
 
+    public String getChatMessage(String original) {
         Config config = Config.getConfig();
         if (config.ChatPrefixes.length() > 0){
             String[] prefixes = config.ChatPrefixes.split(",");

@@ -40,6 +40,10 @@ public class RconService extends Rcon {
             }
             String msg = messages[m];
             String chatMessage = getChatMessage(msg);
+            String teamChatMessage = getTeamChatMessage(msg);
+            if (chatMessage == null){
+                chatMessage = teamChatMessage;
+            }
             if (chatMessage != null)
                 msg = chatMessage;
             AppService.MessagesHistory.add(new AppService.History(server, msg, chatMessage));
