@@ -40,9 +40,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -320,8 +323,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+    private static String getDate(){
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+
     public static void Output(Config.Server server, String text){
-        final String str = "[" + server.Name + "] " + text;
+        final String str = "[" + getDate() + "] [" + server.Name + "] " + text;
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -331,7 +341,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public static void OutputChat(String prefix, String text) {
-        final String str = "[" + prefix + "] " + text;
+        final String str = "[" + getDate() + "] [" + prefix + "] " + text;
+        Instance.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                chatOutput.append(str + "\n");
+            }
+        });
+    }
+
+    public static void Output(AppService.History history){
+        final String str = "[" + history.Date + "] [" + history.Server.Name + "] " + history.Message;
+        Instance.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainOutput.append(str + "\n");
+            }
+        });
+    }
+
+    public static void OutputChat(AppService.History history) {
+        final String str = "[" + history.Date + "] [" + history.Server.Name + "] " + history.ChatMessage;
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -533,8 +563,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Fitch history from service rcons
         for (int i = 0; i < AppService.MessagesHistory.size(); i++){
             AppService.History h = AppService.MessagesHistory.get(i);
-            Output(h.Server, h.Message);
+            if (h.ChatMessage != null)
+                OutputChat(h);
+            Output(h);
         }
+
+        // Fix not scrolling down
+        scrollView.fullScroll(View.FOCUS_DOWN);
         AppService.MessagesHistory.clear();
 
         getSupportActionBar().hide();

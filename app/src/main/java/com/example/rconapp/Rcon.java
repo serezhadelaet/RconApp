@@ -73,6 +73,31 @@ public class Rcon extends LightBehaviour {
 
     }
 
+    public String getChatMessage(String original) {
+        try {
+            Map<String, String> friendMessage =
+                    new Gson().fromJson(original, Map.class);
+            if (friendMessage.containsKey("Channel")) {
+                String friendMsg = "[TEAM CHAT] " + friendMessage.get("Username") + ": " +
+                        friendMessage.get("Message");
+                return friendMsg;
+            }
+        } catch(Exception ex) { }
+
+        Config config = Config.getConfig();
+        if (config.ChatPrefixes.length() > 0){
+            String[] prefixes = config.ChatPrefixes.split(",");
+
+            for (int i = 0; i < prefixes.length; i++) {
+                String pr = prefixes[i];
+                if (original.contains(pr)) {
+                    return original;
+                }
+            }
+        }
+        return null;
+    }
+
     public String[] GetFilteredMessages(String original) {
         if (original.length() == 0) return new String[0];
         String[] filtered = original.split(",");
@@ -98,9 +123,6 @@ public class Rcon extends LightBehaviour {
         if (msg != null && !msg.isEmpty()) {
             output = new String[] {msg};
             return output;
-            //OnСhatMessage(msg);
-            //if (!IsMessageFiltered(msg))
-                //MainActivity.Output(server, msg);
         }
         else{
             output = new String[map.size()];

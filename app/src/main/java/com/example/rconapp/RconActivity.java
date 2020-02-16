@@ -130,7 +130,9 @@ public class RconActivity extends Rcon {
 
         for (int i = 0; i < messages.length; i++){
             String msg = messages[i];
-            OnСhatMessage(msg);
+            String chatMessage = getChatMessage(msg);
+            if (chatMessage != null)
+                MainActivity.OutputChat(server.Name, chatMessage);
             if (!IsMessageFiltered(msg))
                 MainActivity.Output(server, msg);
         }
