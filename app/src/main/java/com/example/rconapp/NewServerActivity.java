@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Html;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +20,6 @@ public class NewServerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_add);
-
         getSupportActionBar().setTitle(Html.fromHtml("<font color=\"#DAE4E5\">New server</font>"));
 
         final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);

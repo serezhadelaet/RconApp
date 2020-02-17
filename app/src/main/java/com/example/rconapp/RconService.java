@@ -4,7 +4,6 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,10 +34,12 @@ public class RconService extends Rcon {
 
         String[] filtered = GetFilteredMessages(Config.getConfig().NotificationMessages);
         for (int m = 0; m < messages.length; m++) {
-            if (AppService.MessagesHistory.size() >= 300) {
-                AppService.MessagesHistory.remove(0);
-            }
             String msg = messages[m];
+
+            // Escape filtered messages
+            if (Config.getConfig().FilteredMessages.contains(msg))
+                continue;
+
             String chatMessage = getChatMessage(msg);
             String teamChatMessage = getTeamChatMessage(msg);
             if (chatMessage == null){
@@ -46,7 +47,10 @@ public class RconService extends Rcon {
             }
             if (chatMessage != null)
                 msg = chatMessage;
-            AppService.MessagesHistory.add(new AppService.History(server, msg, chatMessage));
+            if (History.messages.size() >= 300) {
+                History.messages.remove(0);
+            }
+            History.messages.add(new History(server, msg, chatMessage != null));
             if (isNotifySended) continue;
             for (int i = 0; i < filtered.length; i++){
                 if (msg.contains(filtered[i])){

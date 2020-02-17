@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -125,7 +126,6 @@ public class SettingsActivity extends AppCompatActivity {
         Instance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
         getSupportActionBar().setTitle(Html.fromHtml("<font color=\"#DAE4E5\">Settings</font>"));
 
         final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);

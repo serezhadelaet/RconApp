@@ -19,23 +19,6 @@ public class AppService extends Service {
 
         public static Handler handler;
 
-        public static class History{
-            public Config.Server Server;
-            public String Message;
-            public String ChatMessage;
-            public String Date;
-
-            public History(Config.Server server, String message, String chatMessage) {
-                Server = server;
-                Message = message;
-                ChatMessage = chatMessage;
-                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                Date date = new Date();
-                Date = dateFormat.format(date);
-            }
-        }
-
-        public static List<History> MessagesHistory = Collections.synchronizedList(new ArrayList());
         public static boolean isEnabled;
 
         @Override

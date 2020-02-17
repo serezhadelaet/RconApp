@@ -52,7 +52,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import de.codecrafters.tableview.SortableTableView;
@@ -350,6 +352,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MessageAdapter chatMessageAdapter;
     private ListView chatMessagesView;
 
+    private Dictionary<Integer, Integer> listViewItemHeights = new Hashtable<>();
+
+    private int getScroll() {
+        View c = messagesView.getChildAt(0);
+        int scrollY = -c.getTop();
+        listViewItemHeights.put(messagesView.getFirstVisiblePosition(), c.getHeight());
+        for (int i = 0; i < messagesView.getFirstVisiblePosition(); ++i) {
+            if (listViewItemHeights.get(i) != null)
+                scrollY += listViewItemHeights.get(i);
+        }
+        return scrollY;
+    }
+
     private void InitMessageAdapters(){
         messageAdapter = new MessageAdapter(this);
         messagesView = (ListView) findViewById(R.id.messages_view);
@@ -366,8 +381,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void run() {
 
+                final boolean canScrollNow = Instance.messagesView.canScrollVertically(1);
+
                 Instance.messageAdapter.add(msg);
-                Instance.messagesView.setSelection(Instance.messagesView.getCount() - 1);
+                if (!canScrollNow) {
+                    Instance.messagesView.setSelection(Instance.messageAdapter.getCount() - 1);
+                }
             }
         });
     }
@@ -378,31 +397,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void run() {
 
+                final boolean canScrollNow = Instance.chatMessagesView.canScrollVertically(1);
+
                 Instance.chatMessageAdapter.add(msg);
-                Instance.chatMessagesView.setSelection(Instance.chatMessagesView.getCount() - 1);
+
+                if (!canScrollNow) {
+                    Instance.chatMessagesView.setSelection(Instance.chatMessageAdapter.getCount() - 1);
+                }
             }
         });
     }
 
-    public static void Output(AppService.History history) {
-        final Message msg = new Message("[" + history.Server.Name + "] " + history.Message);
+    public static void Output(History history) {
+        final Message msg = new Message("[" + history.getServer().Name + "] " + history.getMessage(), history.getDate());
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                final boolean canScrollNow = Instance.messagesView.canScrollVertically(1);
+
                 Instance.messageAdapter.add(msg);
-                Instance.messagesView.setSelection(Instance.messagesView.getCount() - 1);
+                if (!canScrollNow) {
+                    Instance.messagesView.setSelection(Instance.messageAdapter.getCount() - 1);
+                }
             }
         });
     }
 
-    public static void OutputChat(AppService.History history) {
-        final Message msg = new Message("[" + history.Server.Name + "] " + history.ChatMessage, history.Date);
+    public static void OutputChat(History history) {
+        final Message msg = new Message("[" + history.getServer().Name + "] " + history.getMessage(), history.getDate());
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
+                final boolean canScrollNow = Instance.chatMessagesView.canScrollVertically(1);
+
                 Instance.chatMessageAdapter.add(msg);
-                Instance.chatMessagesView.setSelection(Instance.chatMessagesView.getCount() - 1);
+                if (!canScrollNow) {
+                    Instance.chatMessagesView.setSelection(Instance.chatMessageAdapter.getCount() - 1);
+                }
             }
         });
     }
@@ -511,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         Instance = this;
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         mainHandler = new Handler(Looper.getMainLooper());
         Notifications.RemoveOnGoing(getApplicationContext());
 
@@ -538,16 +571,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         InitDrawer();
 
         // Fitch history from service rcons
-        for (int i = 0; i < AppService.MessagesHistory.size(); i++){
-            AppService.History h = AppService.MessagesHistory.get(i);
-            if (h.ChatMessage != null)
+        for (int i = 0; i < History.messages.size(); i++){
+            History h = History.messages.get(i);
+            if (h.isChatMessage())
                 OutputChat(h);
             Output(h);
         }
 
         // Fix not scrolling down
         //scrollView.fullScroll(View.FOCUS_DOWN);
-        AppService.MessagesHistory.clear();
+        History.messages.clear();
 
         getSupportActionBar().hide();
 
