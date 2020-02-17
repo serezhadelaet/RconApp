@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketState;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

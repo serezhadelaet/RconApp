@@ -2,7 +2,6 @@ package com.example.rconapp;
 
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketState;
-
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;

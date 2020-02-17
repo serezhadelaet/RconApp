@@ -1,7 +1,6 @@
 package com.example.rconapp;
 
 import com.neovisionaries.ws.client.WebSocketState;
-
 import java.util.HashMap;
 import java.util.Map;
 

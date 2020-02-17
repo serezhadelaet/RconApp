@@ -8,9 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.google.android.material.card.MaterialCardView;
-
 import java.util.List;
 import de.codecrafters.tableview.TableDataAdapter;
 

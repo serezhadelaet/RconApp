@@ -1,10 +1,8 @@
 package com.example.rconapp;
 
-import android.util.Log;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 

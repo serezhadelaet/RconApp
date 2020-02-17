@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -15,12 +14,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.appcompat.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,10 +28,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.os.*;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
@@ -52,9 +44,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import de.codecrafters.tableview.SortableTableView;
@@ -284,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         if (isPlayersOpened){
             if (playersWithoutAvatar.size() > 0) {
-                //new AvatarDownloader(new ArrayList<>(playersWithoutAvatar));
                 new DownloadImageTask(new ArrayList<>(playersWithoutAvatar)).execute();
             }
             playersWithoutAvatar.clear();
@@ -351,19 +339,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private MessageAdapter chatMessageAdapter;
     private ListView chatMessagesView;
-
-    private Dictionary<Integer, Integer> listViewItemHeights = new Hashtable<>();
-
-    private int getScroll() {
-        View c = messagesView.getChildAt(0);
-        int scrollY = -c.getTop();
-        listViewItemHeights.put(messagesView.getFirstVisiblePosition(), c.getHeight());
-        for (int i = 0; i < messagesView.getFirstVisiblePosition(); ++i) {
-            if (listViewItemHeights.get(i) != null)
-                scrollY += listViewItemHeights.get(i);
-        }
-        return scrollY;
-    }
 
     private void InitMessageAdapters(){
         messageAdapter = new MessageAdapter(this);
