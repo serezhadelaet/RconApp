@@ -63,6 +63,7 @@
             android:dividerHeight="2.0sp"
             android:paddingBottom="93dp"
             android:stackFromBottom="true"
+            android:visibility="invisible"
             android:layout_height="match_parent" />
 
     </LinearLayout>
