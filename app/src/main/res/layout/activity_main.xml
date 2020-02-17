@@ -6,6 +6,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     tools:context=".MainActivity"
     tools:openDrawer="start">
 
@@ -19,7 +20,7 @@
             xmlns:table="http://schemas.android.com/apk/res-auto"
             table:tableView_headerElevation="10"
             android:scrollbars="vertical"
-            table:tableView_headerColor="@color/colorPrimary"
+            table:tableView_headerColor="@color/colorPrimaryDark"
             android:layout_width="wrap_content"
             android:id="@+id/tableView"
             android:layout_height="match_parent" table:tableView_columnCount="4"
@@ -27,49 +28,56 @@
 
     </RelativeLayout>
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingBottom="76dp"
-        android:fillViewport="true"
-        android:layout_weight="1"
-        android:gravity="bottom">
-        <TextView
-            android:id="@+id/mainOutput"
-            android:layout_width="match_parent"
-            android:gravity="bottom"
-            android:layout_height="wrap_content"
-            android:textSize="13dp"
-            android:layout_alignParentBottom="true"/>
-    </ScrollView>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipToPadding="false"
+        android:focusableInTouchMode="true">
 
-    <ScrollView
-        android:id="@+id/scrollViewChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingBottom="76dp"
-        android:fillViewport="true"
-        android:layout_weight="1"
-        android:gravity="bottom"
-        android:visibility="invisible">
-        <TextView
-            android:id="@+id/chatOutput"
+        <ListView
             android:layout_width="match_parent"
-            android:gravity="bottom"
-            android:layout_height="wrap_content"
-            android:textSize="13dp"
-            android:layout_alignParentBottom="true" />
-    </ScrollView>
+            android:id="@+id/messages_view"
+            android:layout_weight="2"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="2.0sp"
+            android:paddingBottom="93dp"
+            android:stackFromBottom="true"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipToPadding="false"
+        android:focusableInTouchMode="true">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:id="@+id/chatmessages_view"
+            android:layout_weight="2"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="2.0sp"
+            android:paddingBottom="93dp"
+            android:stackFromBottom="true"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation"
+            app:itemTextColor="@color/colorAccent"
+            app:itemIconTint="@color/colorAccent"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="#ffffff"
+            android:background="@color/colorPrimaryDark"
             android:layout_alignParentBottom="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -90,6 +98,8 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
             android:gravity="top|start"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Type a command"
             android:maxLines="1"
             android:lines="1"
             android:inputType="textNoSuggestions"
@@ -98,13 +108,13 @@
             android:scrollHorizontally="false"
             android:layout_marginTop="3dp"
             android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:textColor="#ffffff" />
+            android:layout_marginRight="5dp"/>
         </LinearLayout>
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
+        android:background="@color/colorPrimaryDark"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"

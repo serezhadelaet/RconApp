@@ -60,7 +60,6 @@ public class PlayersAdapter extends TableDataAdapter<MainActivity.Player> {
                 break;
 
         }
-
         return renderedView;
     }
 }

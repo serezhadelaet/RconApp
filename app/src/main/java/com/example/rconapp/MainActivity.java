@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -13,17 +16,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -40,12 +49,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,15 +62,7 @@ import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static TextView mainOutput;
-
-    public static TextView chatOutput;
-
-    public static ScrollView scrollViewChat;
-
     public static EditText consoleInput;
-
-    public static ScrollView scrollView;
 
     public static SortableTableView tableView;
 
@@ -73,17 +71,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static LinearLayout linearLayoutConsoleInput;
 
     private List<Player> playerList;
+
     private PlayersAdapter adapter;
 
     private DrawerLayout drawer;
 
     private Intent serviceIntent;
 
-    private AppService service;
-
     private Boolean isPlayersOpened = false;
 
     private List<String> playersWithoutAvatar = new ArrayList<>();
+
+    public static boolean isPlayersTabOpen;
+
+    public static boolean isNavBarOpen(){
+        return Instance.drawer.isDrawerOpen(GravityCompat.START);
+    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -92,18 +95,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_console:
-                    scrollViewChat.setVisibility(View.INVISIBLE);
+
+                    if (consoleInput.getText().toString().length() == 0 ||
+                            consoleInput.getText().toString().equals("Type a message")) {
+                        consoleInput.setText("Type a command");
+                        consoleInput.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                    }
+
+                    isPlayersTabOpen = false;
+                    messagesView.setVisibility(View.VISIBLE);
+                    chatMessagesView.setVisibility(View.INVISIBLE);
                     tableView.setVisibility(View.INVISIBLE);
                     linearLayoutConsoleInput.setVisibility(View.VISIBLE);
-                    scrollView.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_chat:
-                    scrollView.setVisibility(View.INVISIBLE);
+
+                    if (consoleInput.getText().length() == 0 ||
+                            consoleInput.getText().toString().equals("Type a command")) {
+                        consoleInput.setText("Type a message");
+                        consoleInput.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                    }
+
+                    isPlayersTabOpen = false;
+                    chatMessagesView.setVisibility(View.VISIBLE);
+                    messagesView.setVisibility(View.INVISIBLE);
                     tableView.setVisibility(View.INVISIBLE);
                     linearLayoutConsoleInput.setVisibility(View.VISIBLE);
-                    scrollViewChat.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_players:
+                    isPlayersTabOpen = true;
+
                     if (!isPlayersOpened){
                         if (playersWithoutAvatar.size() > 0) {
                             new DownloadImageTask(new ArrayList<>(playersWithoutAvatar)).execute();
@@ -116,9 +137,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
+                    chatMessagesView.setVisibility(View.INVISIBLE);
+                    messagesView.setVisibility(View.INVISIBLE);
                     linearLayoutConsoleInput.setVisibility(View.INVISIBLE);
-                    scrollViewChat.setVisibility(View.INVISIBLE);
-                    scrollView.setVisibility(View.INVISIBLE);
                     tableView.setVisibility(View.VISIBLE);
                     return true;
             }
@@ -133,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //If we click on a settings button
         if (id == Config.getConfig().ServerList.size()) {
-
+            isPlayersTabOpen = false;
             Intent intent = new Intent(this, SettingsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
@@ -151,9 +172,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             RconManager.Rcons.get(server).OnActivityChange();
             UpdateServers();
             if (server.Enabled)
-                item.setIcon(R.drawable.ic_check_box_24px);
+                item.setIcon(R.drawable.ic_radio_button_checked_accent_24dp);
             else
-                item.setIcon(R.drawable.ic_check_box_outline_blank_24px);
+                item.setIcon(R.drawable.ic_radio_button_unchecked_accent_24dp);
             Config.saveConfig();
         }
         return true;
@@ -172,8 +193,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
         private List<String> steams;
-
-        private Map<String, Bitmap> playersAvatars = new HashMap<>();
 
         public DownloadImageTask(List<String> list) {
             steams = list;
@@ -206,22 +225,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     InputStream in = new java.net.URL(data.avatar).openStream();
                     mIcon11 = BitmapFactory.decodeStream(in);
-                    playersAvatars.put(data.steamid, mIcon11);
+                    final String id = data.steamid;
+                    final Bitmap m = mIcon11;
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Player player = GetPlayer(id);
+                            if (player != null)
+                                player.Avatar = m;
+                            if (canUpdate)
+                                adapter.notifyDataSetChanged();
+                        }
+                    });
                 } catch (Exception e) {
 
                 }
             }
             return null;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            for (Map.Entry<String, Bitmap> entry : playersAvatars.entrySet()) {
-                Player player = GetPlayer(entry.getKey());
-                if (player != null)
-                    player.Avatar = entry.getValue();
-            }
-            if (canUpdate)
-                adapter.notifyDataSetChanged();
         }
     }
 
@@ -262,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         if (isPlayersOpened){
             if (playersWithoutAvatar.size() > 0) {
+                //new AvatarDownloader(new ArrayList<>(playersWithoutAvatar));
                 new DownloadImageTask(new ArrayList<>(playersWithoutAvatar)).execute();
             }
             playersWithoutAvatar.clear();
@@ -323,49 +344,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private MessageAdapter messageAdapter;
+    private ListView messagesView;
 
-    private static String getDate(){
-        Date date = new Date();
-        return dateFormat.format(date);
+    private MessageAdapter chatMessageAdapter;
+    private ListView chatMessagesView;
+
+    private void InitMessageAdapters(){
+        messageAdapter = new MessageAdapter(this);
+        messagesView = (ListView) findViewById(R.id.messages_view);
+        messagesView.setAdapter(messageAdapter);
+
+        chatMessageAdapter = new MessageAdapter(this);
+        chatMessagesView = (ListView) findViewById(R.id.chatmessages_view);
+        chatMessagesView.setAdapter(chatMessageAdapter);
     }
 
-    public static void Output(Config.Server server, String text){
-        final String str = "[" + getDate() + "] [" + server.Name + "] " + text;
+    public static void Output(Config.Server server, String text) {
+        final Message msg = new Message("[" + server.Name + "] " + text);
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mainOutput.append(str + "\n");
+
+                Instance.messageAdapter.add(msg);
+                Instance.messagesView.setSelection(Instance.messagesView.getCount() - 1);
             }
         });
     }
 
     public static void OutputChat(String prefix, String text) {
-        final String str = "[" + getDate() + "] [" + prefix + "] " + text;
+        final Message msg = new Message("[" + prefix + "] " + text);
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                chatOutput.append(str + "\n");
+
+                Instance.chatMessageAdapter.add(msg);
+                Instance.chatMessagesView.setSelection(Instance.chatMessagesView.getCount() - 1);
             }
         });
     }
 
-    public static void Output(AppService.History history){
-        final String str = "[" + history.Date + "] [" + history.Server.Name + "] " + history.Message;
+    public static void Output(AppService.History history) {
+        final Message msg = new Message("[" + history.Server.Name + "] " + history.Message);
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mainOutput.append(str + "\n");
+                Instance.messageAdapter.add(msg);
+                Instance.messagesView.setSelection(Instance.messagesView.getCount() - 1);
             }
         });
     }
 
     public static void OutputChat(AppService.History history) {
-        final String str = "[" + history.Date + "] [" + history.Server.Name + "] " + history.ChatMessage;
+        final Message msg = new Message("[" + history.Server.Name + "] " + history.ChatMessage, history.Date);
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                chatOutput.append(str + "\n");
+
+                Instance.chatMessageAdapter.add(msg);
+                Instance.chatMessagesView.setSelection(Instance.chatMessagesView.getCount() - 1);
             }
         });
     }
@@ -384,45 +421,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AppService.setDisable();
     }
 
-    private void InitChatOutput(){
-
-        chatOutput = (TextView) findViewById(R.id.chatOutput);
-        chatOutput.addTextChangedListener(new TextWatcher() {
-
-            private int lastValue;
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                Scroll();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                lastValue = scrollViewChat.getChildAt(0).getHeight() - scrollViewChat.getHeight();
-                Scroll();
-            }
-
-            @Override
-            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                Scroll();
-            }
-
-            private void Scroll(){
-                scrollViewChat.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (lastValue - scrollViewChat.getScrollY() < -150)
-                            scrollViewChat.fullScroll(View.FOCUS_DOWN);
-                    }
-                });
-            }
-        });
-
-    }
-
     private void InitConsoleInput(){
 
         consoleInput = (EditText) findViewById(R.id.consoleInput);
+
+        consoleInput.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (consoleInput.getText().toString().equals("Type a message") ||
+                        consoleInput.getText().toString().equals("Type a command")) {
+                    consoleInput.setText("");
+                    consoleInput.setTextColor(getResources().getColor(R.color.colorAccent));
+                }
+                return false;
+            }
+        });
 
         consoleInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -430,7 +443,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             boolean handled = false;
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 String prefix = "";
-                if (scrollViewChat.getVisibility() == View.VISIBLE){
+                if (chatMessagesView.getVisibility() == View.VISIBLE){
                     prefix+="say ";
                 }
                 String text = consoleInput.getText().toString();
@@ -469,41 +482,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tableView.setVisibility(View.INVISIBLE);
     }
 
-    private void InitMainOutput(){
-        scrollView = (ScrollView) findViewById(R.id.scrollView);
-        mainOutput = (TextView) findViewById(R.id.mainOutput);
-        mainOutput.addTextChangedListener(new TextWatcher() {
-
-            private int lastValue;
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                Scroll();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                lastValue = scrollView.getChildAt(0).getHeight() - scrollView.getHeight();
-                Scroll();
-            }
-
-            @Override
-            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                Scroll();
-            }
-
-            private void Scroll(){
-                scrollView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (lastValue - scrollView.getScrollY() < -150)
-                            scrollView.fullScroll(View.FOCUS_DOWN);
-                    }
-                });
-            }
-        });
-    }
-
     private void InitDrawer(){
         drawer = (DrawerLayout) findViewById(R.id.container);
         try{
@@ -533,6 +511,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         Instance = this;
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         mainHandler = new Handler(Looper.getMainLooper());
         Notifications.RemoveOnGoing(getApplicationContext());
 
@@ -551,13 +530,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        scrollViewChat = (ScrollView) findViewById(R.id.scrollViewChat);
         linearLayoutConsoleInput = (LinearLayout) findViewById(R.id.consoleInputLayout);
 
-        InitChatOutput();
         InitConsoleInput();
         InitTableView();
-        InitMainOutput();
+        InitMessageAdapters();
         InitDrawer();
 
         // Fitch history from service rcons
@@ -569,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         // Fix not scrolling down
-        scrollView.fullScroll(View.FOCUS_DOWN);
+        //scrollView.fullScroll(View.FOCUS_DOWN);
         AppService.MessagesHistory.clear();
 
         getSupportActionBar().hide();
@@ -613,14 +590,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Config.Server server = config.ServerList.get(i);
             MenuItem item = navigationViewMenu.add(0, i, 0, server.Name);
             if (server.Enabled)
-                item.setIcon(R.drawable.ic_check_box_24px);
+                item.setIcon(R.drawable.ic_radio_button_checked_accent_24dp);
             else
-                item.setIcon(R.drawable.ic_check_box_outline_blank_24px);
+                item.setIcon(R.drawable.ic_radio_button_unchecked_accent_24dp);
         }
         MenuItem settings = navigationViewMenu.add(1, config.ServerList.size(), 0, "Settings");
         settings.setIcon(android.R.drawable.ic_menu_preferences);
+        Drawable drawable = settings.getIcon();
+        if(drawable != null) {
+            drawable.mutate();
+            drawable.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+        }
         MenuItem exit = navigationViewMenu.add(2, config.ServerList.size()+1, 0, "Exit");
         exit.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        drawable = exit.getIcon();
+        if(drawable != null) {
+            drawable.mutate();
+            drawable.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
+        }
     }
 
     @Override

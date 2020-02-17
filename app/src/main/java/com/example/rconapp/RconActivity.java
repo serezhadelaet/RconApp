@@ -32,10 +32,25 @@ public class RconActivity extends Rcon {
     public void Update() {
         super.Update();
         if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
-            Send("playerlist");
-            Send("serverinfo");
+            if (MainActivity.isPlayersTabOpen)
+                Send("playerlist");
+            if (MainActivity.isNavBarOpen())
+                Send("serverinfo");
         }
         reconnect();
+    }
+
+    @Override
+    public void updatePlayerList(){
+        if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
+            Send("playerlist");
+        }
+    }
+
+    private void updateServerInfo(){
+        if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
+            Send("serverinfo");
+        }
     }
 
     private Boolean IsPlayersInfo(String data) {
@@ -123,7 +138,8 @@ public class RconActivity extends Rcon {
     public void onConnected() {
         super.onConnected();
         isDisconnected = false;
-        Update();
+        updatePlayerList();
+        updateServerInfo();
         MainActivity.Instance.UpdateServers();
         //MainActivity.Output(server,"Connected");
     }

@@ -187,6 +187,10 @@ public class Rcon extends LightBehaviour {
 
     }
 
+    public void updatePlayerList(){
+
+    }
+
     public void connect(){
         try{
             if (server.Enabled)
