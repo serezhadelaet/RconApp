@@ -6,8 +6,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class AppService extends Service {
@@ -19,16 +22,21 @@ public class AppService extends Service {
         public static class History{
             public Config.Server Server;
             public String Message;
+            public String ChatMessage;
+            public String Date;
 
-            public History(Config.Server server, String message){
+            public History(Config.Server server, String message, String chatMessage) {
                 Server = server;
                 Message = message;
+                ChatMessage = chatMessage;
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                Date date = new Date();
+                Date = dateFormat.format(date);
             }
         }
 
         public static List<History> MessagesHistory = Collections.synchronizedList(new ArrayList());
         public static boolean isEnabled;
-        public static Integer i = 0;
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
@@ -70,6 +78,11 @@ public class AppService extends Service {
                 Config.Server server = config.ServerList.get(i);
                 RconManager.addAsService(server);
             }
+        }
+
+        @Override
+        public void onDestroy(){
+            RconManager.removeAll();
         }
 
         @Override

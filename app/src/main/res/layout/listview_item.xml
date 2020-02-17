@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
-    android:layout_width="match_parent">
-
-
+    android:layout_width="match_parent"
+    android:background="@color/colorPrimary">
 
         <TextView
             android:id="@+id/listview_text"
@@ -25,7 +24,8 @@
             android:textAllCaps="false"
             android:layout_toLeftOf="@id/listview_delete"
             android:textSize="18dp"
-            android:text="Edit"/>
+            android:text="Edit"
+            />
         <Button android:id="@+id/listview_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

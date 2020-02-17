@@ -4,6 +4,7 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,12 +38,20 @@ public class RconService extends Rcon {
             if (AppService.MessagesHistory.size() >= 300) {
                 AppService.MessagesHistory.remove(0);
             }
-            AppService.MessagesHistory.add(new AppService.History(server, messages[m]));
+            String msg = messages[m];
+            String chatMessage = getChatMessage(msg);
+            String teamChatMessage = getTeamChatMessage(msg);
+            if (chatMessage == null){
+                chatMessage = teamChatMessage;
+            }
+            if (chatMessage != null)
+                msg = chatMessage;
+            AppService.MessagesHistory.add(new AppService.History(server, msg, chatMessage));
             if (isNotifySended) continue;
             for (int i = 0; i < filtered.length; i++){
-                if (messages[m].contains(filtered[i])){
+                if (msg.contains(filtered[i])){
                     isNotifySended = true;
-                    Notifications.Create(AppService.Instance.getApplicationContext(), "[" + server.Name + "] Notification", messages[m]);
+                    Notifications.Create(AppService.Instance.getApplicationContext(), "[" + server.Name + "] Notification", msg);
                     break;
                 }
             }

@@ -32,10 +32,25 @@ public class RconActivity extends Rcon {
     public void Update() {
         super.Update();
         if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
-            Send("playerlist");
-            Send("serverinfo");
+            if (MainActivity.isPlayersTabOpen)
+                Send("playerlist");
+            if (MainActivity.isNavBarOpen())
+                Send("serverinfo");
         }
         reconnect();
+    }
+
+    @Override
+    public void updatePlayerList(){
+        if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
+            Send("playerlist");
+        }
+    }
+
+    private void updateServerInfo(){
+        if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
+            Send("serverinfo");
+        }
     }
 
     private Boolean IsPlayersInfo(String data) {
@@ -96,42 +111,25 @@ public class RconActivity extends Rcon {
         }
     }
 
-    private Boolean OnСhatMessage(String data) {
-        try {
-            Map<String, String> friendMessage =
-                    new Gson().fromJson(data, Map.class);
-            if (friendMessage.containsKey("Channel")) {
-                String friendMsg = "[TEAM CHAT] " + friendMessage.get("Username") + ": " +
-                        friendMessage.get("Message");
-                MainActivity.Instance.OutputChat(server.Name, friendMsg);
-                return true;
-            }
-        } catch(Exception ex) { }
 
-        Config config = Config.getConfig();
-        if (config.ChatPrefixes.length() == 0) return false;
-        String[] prefixes = config.ChatPrefixes.split(",");
-
-        for (int i = 0; i < prefixes.length; i++) {
-            String pr = prefixes[i];
-            if (data.contains(pr)) {
-                MainActivity.Instance.OutputChat(server.Name, data);
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public void onTextMessage(String message, String[] messages) {
         super.onTextMessage(message, messages);
         if (IsPlayersInfo(message)) return;
         if (IsServerInfo(message)) return;
-
         for (int i = 0; i < messages.length; i++){
             String msg = messages[i];
-            OnСhatMessage(msg);
-            if (!IsMessageFiltered(msg))
+            String chatMessage = getChatMessage(msg);
+            String teamChatMessage = getTeamChatMessage(msg);
+            if (chatMessage == null){
+                chatMessage = teamChatMessage;
+            }
+            if (chatMessage != null) {
+                MainActivity.OutputChat(server.Name, chatMessage);
+                msg = chatMessage;
+            }
+            if (!IsMessageFiltered(msg) && teamChatMessage == null)
                 MainActivity.Output(server, msg);
         }
     }
@@ -140,7 +138,8 @@ public class RconActivity extends Rcon {
     public void onConnected() {
         super.onConnected();
         isDisconnected = false;
-        Update();
+        updatePlayerList();
+        updateServerInfo();
         MainActivity.Instance.UpdateServers();
         //MainActivity.Output(server,"Connected");
     }
