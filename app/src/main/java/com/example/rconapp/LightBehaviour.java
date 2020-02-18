@@ -12,16 +12,16 @@ public class LightBehaviour {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Update();
+                update();
             }
         }, 2000, 2000);
     }
 
-    public void Update() {
+    public void update() {
 
     }
 
-    public void Destroy() {
+    public void destroy() {
         timer.cancel();
     }
 

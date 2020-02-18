@@ -3,4 +3,6 @@
     <color name="colorPrimary">#464f54</color>
     <color name="colorPrimaryDark">#2F3538</color>
     <color name="colorAccent">#DAE4E5</color>
+    <color name="colorAccentDark">#989fa0</color>
+    <color name="colorNotify">#541818</color>
 </resources>

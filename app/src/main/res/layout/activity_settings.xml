@@ -80,16 +80,18 @@
              android:layout_gravity="center"
              android:id="@+id/activity_settings_addserver"
              android:text="Add a server"/>
-         <ListView android:id="@+id/server_add_listview"
-             android:layout_width="match_parent"
-             android:layout_height="200dp"
-             android:focusable="true"
-             />
      </LinearLayout>
 
  </ScrollView>
-
-
-
-
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+        <ListView android:id="@+id/server_add_listview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            />
+    </LinearLayout>
 </LinearLayout>
+

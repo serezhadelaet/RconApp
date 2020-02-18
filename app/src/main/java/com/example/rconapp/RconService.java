@@ -30,13 +30,11 @@ public class RconService extends Rcon {
     public void onTextMessage(String message, String[] messages) {
         super.onTextMessage(message, messages);
         boolean isNotifySended = false;
-
-        String[] filtered = GetFilteredMessages(Config.getConfig().NotificationMessages);
         for (int m = 0; m < messages.length; m++) {
             String msg = messages[m];
 
             // Escape filtered messages
-            if (Config.getConfig().FilteredMessages.contains(msg))
+            if (isMessageFiltered(msg))
                 continue;
 
             String chatMessage = getChatMessage(msg);
@@ -49,14 +47,11 @@ public class RconService extends Rcon {
             if (History.messages.size() >= 300) {
                 History.messages.remove(0);
             }
-            History.messages.add(new History(server, msg, chatMessage != null));
+            boolean isNotify = isNotificationMessage(msg);
+            History.messages.add(new Message(server, msg, chatMessage != null, isNotify ));
             if (isNotifySended) continue;
-            for (int i = 0; i < filtered.length; i++){
-                if (msg.contains(filtered[i])){
-                    isNotifySended = true;
-                    Notifications.Create(AppService.Instance.getApplicationContext(), "[" + server.Name + "] Notification", msg);
-                    break;
-                }
+            if (isNotify){
+                Notifications.Create(AppService.Instance.getApplicationContext(), "[" + server.Name + "] Notification", msg);
             }
         }
     }
@@ -64,8 +59,8 @@ public class RconService extends Rcon {
 
 
     @Override
-    public void Update() {
-        super.Update();
+    public void update() {
+        super.update();
         reconnect();
     }
 
@@ -87,12 +82,30 @@ public class RconService extends Rcon {
     public void onConnected() {
         super.onConnected();
         isDisconnected = false;
+        cancelOrCreateDisconnectTimer();
         UpdateOnGoingNotification();
+        isSilenceDisconnect = false;
     }
 
     @Override
     public void onConnectedError(String error) {
         super.onConnectedError(error);
+        UpdateOnGoingNotification();
+    }
+
+    Timer disconnectTimer;
+
+    private void cancelOrCreateDisconnectTimer(){
+        if (disconnectTimer != null)
+            disconnectTimer.cancel();
+        else
+            disconnectTimer = new Timer();
+    }
+
+    @Override
+    public void disconnect(){
+        cancelOrCreateDisconnectTimer();
+        super.disconnect();
     }
 
     @Override
@@ -100,17 +113,15 @@ public class RconService extends Rcon {
         super.onDisconnected();
         if (isDisconnected) return;
         isDisconnected = true;
-        if (isSilentDisconnect) return;
-        UpdateOnGoingNotification();
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        if (isSilenceDisconnect) return;
+        cancelOrCreateDisconnectTimer();
+        disconnectTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if(!isDisconnected && socket.getState() == WebSocketState.OPEN) return;
                 Notifications.Create(AppService.Instance.getApplicationContext(),
                         "Disconnected", server.Name);
             }
-        }, 10000);
+        }, 5000);
     }
 
     @Override

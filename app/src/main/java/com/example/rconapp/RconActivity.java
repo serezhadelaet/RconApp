@@ -20,7 +20,7 @@ public class RconActivity extends Rcon {
         try{
             socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
         }catch (IOException ex){
-            MainActivity.Output(server,"Error" + ex);
+            MainActivity.Output(new Message(server, "Error", false, false));
             return;
         }
         initListeners();
@@ -28,8 +28,8 @@ public class RconActivity extends Rcon {
     }
 
     @Override
-    public void Update() {
-        super.Update();
+    public void update() {
+        super.update();
         if (server.Enabled && socket != null && socket.getState() == WebSocketState.OPEN) {
             if (MainActivity.isPlayersTabOpen)
                 Send("playerlist");
@@ -64,19 +64,6 @@ public class RconActivity extends Rcon {
         } catch (Exception ex) {
             return false;
         }
-    }
-
-    private Boolean IsMessageFiltered(String message){
-        Config config = Config.getConfig();
-        if (config.FilteredMessages.length() == 0) return false;
-        String[] filtered = config.FilteredMessages.split(",");
-        for (int i = 0; i < filtered.length; i++) {
-            String pr = filtered[i];
-            if (message.contains(pr)){
-                return true;
-            }
-        }
-        return false;
     }
 
     private Boolean IsServerInfo(String data) {
@@ -119,17 +106,27 @@ public class RconActivity extends Rcon {
         if (IsServerInfo(message)) return;
         for (int i = 0; i < messages.length; i++){
             String msg = messages[i];
+
+            // Escape filtered messages
+            if (isMessageFiltered(msg))
+                return;
+
             String chatMessage = getChatMessage(msg);
             String teamChatMessage = getTeamChatMessage(msg);
-            if (chatMessage == null){
+
+            if (chatMessage == null) {
                 chatMessage = teamChatMessage;
             }
             if (chatMessage != null) {
-                MainActivity.OutputChat(server.Name, chatMessage);
                 msg = chatMessage;
             }
-            if (!IsMessageFiltered(msg) && teamChatMessage == null)
-                MainActivity.Output(server, msg);
+            Message m = new Message(server, msg, isNotificationMessage(msg), chatMessage != null);
+            if (teamChatMessage == null){
+                MainActivity.Output(m);
+            }
+            else{
+                MainActivity.OutputChat(m);
+            }
         }
     }
 
@@ -140,7 +137,6 @@ public class RconActivity extends Rcon {
         updatePlayerList();
         updateServerInfo();
         MainActivity.Instance.UpdateServers();
-        //MainActivity.Output(server,"Connected");
     }
 
     @Override
@@ -149,7 +145,7 @@ public class RconActivity extends Rcon {
         if (isDisconnected) return;
         isDisconnected = true;
         MainActivity.Instance.UpdateServers();
-        MainActivity.Output(server,"onConnectError " + error);
+        MainActivity.Output(new Message(server, "onConnectError:" + error, false, false));
     }
 
     @Override
@@ -157,10 +153,8 @@ public class RconActivity extends Rcon {
         super.onDisconnected();
         if (isDisconnected) return;
         isDisconnected = true;
-        if (isSilentDisconnect) return;
         MainActivity.Instance.AddOrUpdatePlayers(server, null);
         MainActivity.Instance.UpdateServers();
-        MainActivity.Output(server,"Disconnected");
     }
 
     @Override
@@ -169,7 +163,7 @@ public class RconActivity extends Rcon {
         if (isDisconnected) return;
         isDisconnected = true;
         MainActivity.Instance.UpdateServers();
-        MainActivity.Output(server,"Connection problem. Trying to reconnect...");
+        MainActivity.Output(new Message(server, "Connection problem. Trying to reconnect...", false, false));
     }
 
 }

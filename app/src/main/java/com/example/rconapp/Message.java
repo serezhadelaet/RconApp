@@ -9,16 +9,22 @@ public class Message {
     private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
     private String text;
+    private boolean isNotificationMessage;
+    private boolean isChatMessage;
     private String date;
 
-    public Message(String text) {
-        this.text = text;
+    public Message(Config.Server server, String text, boolean isNotify, boolean isChatMessage) {
+        this.text = "[" + server.Name + "] " + text;
         this.date = dateFormat.format(new Date());
+        this.isNotificationMessage = isNotify;
+        this.isChatMessage = isChatMessage;
     }
 
-    public Message(String text, String date) {
+    public Message(String text, boolean isNotify, boolean isChatMessage) {
         this.text = text;
-        this.date = date;
+        this.date = dateFormat.format(new Date());
+        this.isNotificationMessage = isNotify;
+        this.isChatMessage = isChatMessage;
     }
 
     public String getText() {
@@ -27,5 +33,13 @@ public class Message {
 
     public String getDate() {
         return date;
+    }
+
+    public boolean isNotification() {
+        return isNotificationMessage;
+    }
+
+    public boolean isChatMessage(){
+        return isChatMessage;
     }
 }

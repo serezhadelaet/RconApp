@@ -13,7 +13,7 @@
     <RelativeLayout
         android:id="@+id/staticLayout"
         android:layout_width="wrap_content"
-        android:paddingBottom="56dp"
+        android:paddingTop="46dp"
         android:layout_height="wrap_content">
 
         <de.codecrafters.tableview.SortableTableView
@@ -23,7 +23,8 @@
             table:tableView_headerColor="@color/colorPrimaryDark"
             android:layout_width="wrap_content"
             android:id="@+id/tableView"
-            android:layout_height="match_parent" table:tableView_columnCount="4"
+            android:layout_height="match_parent"
+            table:tableView_columnCount="4"
             table:layout_constraintHeight_max="wrap" />
 
     </RelativeLayout>
@@ -41,8 +42,9 @@
             android:id="@+id/messages_view"
             android:layout_weight="2"
             android:divider="@android:color/transparent"
-            android:dividerHeight="2.0sp"
-            android:paddingBottom="93dp"
+            android:dividerHeight="1.0sp"
+            android:paddingBottom="36dp"
+            android:paddingTop="46dp"
             android:stackFromBottom="true"
             android:layout_height="match_parent" />
 
@@ -60,8 +62,9 @@
             android:id="@+id/chatmessages_view"
             android:layout_weight="2"
             android:divider="@android:color/transparent"
-            android:dividerHeight="2.0sp"
-            android:paddingBottom="93dp"
+            android:dividerHeight="1.0sp"
+            android:paddingTop="46dp"
+            android:paddingBottom="36dp"
             android:stackFromBottom="true"
             android:visibility="invisible"
             android:layout_height="match_parent" />
@@ -77,19 +80,19 @@
             app:itemTextColor="@color/colorAccent"
             app:itemIconTint="@color/colorAccent"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="46dp"
             android:background="@color/colorPrimaryDark"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            app:labelVisibilityMode="unlabeled"
             app:menu="@menu/navigation" />
         <LinearLayout
             android:id="@+id/consoleInputLayout"
             android:layout_width="match_parent"
             android:layout_height="35dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="56dp"
             android:orientation="horizontal"
             android:background="@drawable/side_nav_bar" >
 

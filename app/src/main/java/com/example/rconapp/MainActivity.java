@@ -164,8 +164,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             UpdateServers();
             if (server.Enabled)
                 item.setIcon(R.drawable.ic_radio_button_checked_accent_24dp);
-            else
+            else {
                 item.setIcon(R.drawable.ic_radio_button_unchecked_accent_24dp);
+                Output(new Message(server, "Disconnected", false, false));
+            }
             Config.saveConfig();
         }
         return true;
@@ -350,15 +352,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         chatMessagesView.setAdapter(chatMessageAdapter);
     }
 
-    public static void Output(Config.Server server, String text) {
-        final Message msg = new Message("[" + server.Name + "] " + text);
+    public static void Output(final Message message) {
+        if (message.isChatMessage())
+            OutputChat(message);
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 final boolean canScrollNow = Instance.messagesView.canScrollVertically(1);
 
-                Instance.messageAdapter.add(msg);
+                Instance.messageAdapter.add(message);
                 if (!canScrollNow) {
                     Instance.messagesView.setSelection(Instance.messageAdapter.getCount() - 1);
                 }
@@ -367,14 +370,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public static void OutputChat(String prefix, String text) {
-        final Message msg = new Message("[" + prefix + "] " + text);
+        final Message message = new Message("[" + prefix + "] " + text, false, true);
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 final boolean canScrollNow = Instance.chatMessagesView.canScrollVertically(1);
 
-                Instance.chatMessageAdapter.add(msg);
+                Instance.chatMessageAdapter.add(message);
 
                 if (!canScrollNow) {
                     Instance.chatMessagesView.setSelection(Instance.chatMessageAdapter.getCount() - 1);
@@ -383,31 +386,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    public static void Output(History history) {
-        final Message msg = new Message("[" + history.getServer().Name + "] " + history.getMessage(), history.getDate());
-        Instance.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                final boolean canScrollNow = Instance.messagesView.canScrollVertically(1);
-
-                Instance.messageAdapter.add(msg);
-                if (!canScrollNow) {
-                    Instance.messagesView.setSelection(Instance.messageAdapter.getCount() - 1);
-                }
-            }
-        });
-    }
-
-    public static void OutputChat(History history) {
-        final Message msg = new Message("[" + history.getServer().Name + "] " + history.getMessage(), history.getDate());
+    public static void OutputChat(final Message message) {
         Instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 final boolean canScrollNow = Instance.chatMessagesView.canScrollVertically(1);
 
-                Instance.chatMessageAdapter.add(msg);
+                Instance.chatMessageAdapter.add(message);
+
                 if (!canScrollNow) {
                     Instance.chatMessagesView.setSelection(Instance.chatMessageAdapter.getCount() - 1);
                 }
@@ -547,10 +534,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Fitch history from service rcons
         for (int i = 0; i < History.messages.size(); i++){
-            History h = History.messages.get(i);
-            if (h.isChatMessage())
-                OutputChat(h);
-            Output(h);
+            Message m = History.messages.get(i);
+            Output(m);
         }
 
         // Fix not scrolling down
@@ -620,7 +605,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onDestroy() {
-        RconManager.removeAll();
         enableService();
         super.onDestroy();
     }

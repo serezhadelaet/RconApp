@@ -36,19 +36,10 @@ public class RconManager {
     public static void remove(Config.Server server) {
         if (Rcons.containsKey(server)){
             Rcon rcon = Rcons.get(server);
-            rcon.Disconnect(true);
-            rcon.Destroy();
+            rcon.disconnect();
+            rcon.destroy();
             Rcons.remove(server);
         }
-    }
-
-    public static int GetOverallOnline(){
-        int online = 0;
-        for (Map.Entry<Config.Server, Rcon> entry : Rcons.entrySet()) {
-            Rcon rcon = entry.getValue();
-            online+=rcon.serverInfo.Online;
-        }
-        return online;
     }
 
     public static int GetOverallConnectedServers(){
@@ -64,8 +55,9 @@ public class RconManager {
     public static void removeAll(){
         for (Map.Entry<Config.Server, Rcon> entry : Rcons.entrySet()) {
             Rcon rcon = entry.getValue();
-            rcon.Destroy();
-            rcon.Disconnect(true);
+            rcon.isSilenceDisconnect = true;
+            rcon.destroy();
+            rcon.disconnect();
         }
         Rcons.clear();
     }

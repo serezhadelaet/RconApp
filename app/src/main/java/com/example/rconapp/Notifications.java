@@ -16,7 +16,7 @@ public class Notifications {
     }
 
     public static void CreateOnGoing(final Context context, final String text) {
-
+        if (!AppService.isEnabled) return;
         AppService.runOnUiThread(new Runnable() {
             @Override
             public void run() {
