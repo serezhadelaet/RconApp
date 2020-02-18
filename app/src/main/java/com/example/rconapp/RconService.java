@@ -44,11 +44,8 @@ public class RconService extends Rcon {
             }
             if (chatMessage != null)
                 msg = chatMessage;
-            if (History.messages.size() >= 300) {
-                History.messages.remove(0);
-            }
             boolean isNotify = isNotificationMessage(msg);
-            History.messages.add(new Message(server, msg, chatMessage != null, isNotify ));
+            History.add(new Message(server, msg, isNotify, chatMessage != null ));
             if (isNotifySended) continue;
             if (isNotify){
                 Notifications.Create(AppService.Instance.getApplicationContext(), "[" + server.Name + "] Notification", msg);

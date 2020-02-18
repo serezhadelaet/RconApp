@@ -533,14 +533,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         InitDrawer();
 
         // Fitch history from service rcons
-        for (int i = 0; i < History.messages.size(); i++){
-            Message m = History.messages.get(i);
+        List<Message> historyMessages = History.getMessages();
+        for (int i = 0; i < historyMessages.size(); i++){
+            Message m = historyMessages.get(i);
             Output(m);
         }
 
-        // Fix not scrolling down
-        //scrollView.fullScroll(View.FOCUS_DOWN);
-        History.messages.clear();
+        History.clear();
 
         getSupportActionBar().hide();
 
@@ -683,7 +682,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void SendToRcons(String command) {
+    public void SendToRcons(String command) {
         if (command.isEmpty()) return;
         for (Map.Entry<Config.Server, Rcon> entry : RconManager.Rcons.entrySet()) {
             if (entry.getKey().Enabled)
@@ -693,7 +692,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Boolean canUpdate = true;
     private Player clickedPlayer = null;
-
 
     public void showPopup(View view) {
         PopupMenu popup = new PopupMenu(MainActivity.this, view);
@@ -737,7 +735,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onDataClicked(int rowIndex, Player pl) {
             clickedPlayer = pl;
-            MainActivity.Instance.showPopup(adapter.getCellView(rowIndex, 0, tableView));
+            ActivityPlayer.player = pl;
+            Intent intent = new Intent(MainActivity.Instance.getApplicationContext(), ActivityPlayer.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+            //MainActivity.Instance.showPopup(adapter.getCellView(rowIndex, 0, tableView));
         }
     }
 
@@ -761,13 +763,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Integer time1 = new Integer(player1.Time);
             Integer time2 = new Integer(player2.Time);
             return time1.compareTo(time2);
-        }
-    }
-
-    public class Utils {
-
-        public void runOnUiThread(Runnable runnable){
-            mainHandler.post(runnable);
         }
     }
 
