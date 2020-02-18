@@ -103,7 +103,7 @@ public class RconService extends Rcon {
     }
 
     @Override
-    public void disconnect(){
+    public void disconnect() {
         cancelOrCreateDisconnectTimer();
         super.disconnect();
     }
