@@ -16,7 +16,7 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 
 * Android Studio 3.5.3 or higher
 * Java 1.8.0_241 or higher
-* Android 4.1.0 or higher
+* Android 4.3.0 or higher
 
 ## Built With
 
