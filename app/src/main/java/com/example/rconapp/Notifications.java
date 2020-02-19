@@ -54,6 +54,8 @@ public class Notifications {
                                 .setContentTitle(title)
                                 .setContentText(text)
                                 .setContentIntent(pendingIntent);
+                mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+                mBuilder.setVibrate(new long[]{100, 70, 100, 70});
                 mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(notificationId, mBuilder.build());
