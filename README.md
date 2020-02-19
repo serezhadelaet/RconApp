@@ -22,7 +22,7 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 
 * [nv-websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websockets
 * [gson](https://github.com/google/gson) - Json
-* [SortableTableView](https://github.com/ISchwarz23/SortableTableView) - Tables
+* [CircleImageView](https://github.com/hdodenhof/CircleImageView) - Fit images into circle
 
 ## TODO
 * More complex players list with additional info about a player
@@ -32,3 +32,4 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 
 ![Preview1](/preview1.jpg)
 ![Preview2](/preview2.jpg)
+![Preview3](/preview3.jpg)
