@@ -1,8 +1,9 @@
 package com.example.rconapp;
 
+import android.graphics.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
 public class Message {
 
@@ -11,20 +12,17 @@ public class Message {
     private String text;
     private boolean isNotificationMessage;
     private boolean isChatMessage;
+    private Color backgroundColor;
     private String date;
 
-    public Message(Config.Server server, String text, boolean isNotify, boolean isChatMessage) {
+    public Message(Server server, String text) {
         this.text = "[" + server.Name + "] " + text;
-        this.date = dateFormat.format(new Date());
-        this.isNotificationMessage = isNotify;
-        this.isChatMessage = isChatMessage;
+        this.date = dateFormat.format(Calendar.getInstance().getTime());
     }
 
-    public Message(String text, boolean isNotify, boolean isChatMessage) {
+    public Message(String text) {
         this.text = text;
-        this.date = dateFormat.format(new Date());
-        this.isNotificationMessage = isNotify;
-        this.isChatMessage = isChatMessage;
+        this.date = dateFormat.format(Calendar.getInstance().getTime());
     }
 
     public String getText() {
@@ -41,5 +39,21 @@ public class Message {
 
     public boolean isChatMessage(){
         return isChatMessage;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor){
+        this.backgroundColor = backgroundColor;
+    }
+
+    public void setAsNotificationMessage() {
+        isNotificationMessage = true;
+    }
+
+    public void setAsChatMessage() {
+        isChatMessage = true;
     }
 }

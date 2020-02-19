@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single" android:id="@+id/menu_Items_List">
+    <group android:checkableBehavior="single">
 
     </group>
 </menu>

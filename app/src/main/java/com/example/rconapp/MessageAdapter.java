@@ -12,8 +12,8 @@ import java.util.List;
 
 public class MessageAdapter extends BaseAdapter {
 
-    List<Message> messages = new ArrayList<Message>();
-    Context context;
+    private List<Message> messages = new ArrayList<>();
+    private Context context;
 
     public MessageAdapter(Context context) {
         this.context = context;
@@ -46,8 +46,8 @@ public class MessageAdapter extends BaseAdapter {
 
         convertView = messageInflater.inflate(R.layout.layout_message, null);
 
-        TextView body = (TextView) convertView.findViewById(R.id.message_body);
-        TextView date = (TextView) convertView.findViewById(R.id.message_date);
+        TextView body = convertView.findViewById(R.id.message_body);
+        TextView date = convertView.findViewById(R.id.message_date);
         date.setText(message.getDate());
         body.setText(message.getText());
         if (message.isNotification()){

@@ -10,7 +10,7 @@ public class Rcon extends LightBehaviour implements IRcon {
 
     public WebSocket socket;
 
-    public Config.Server server;
+    public Server server;
 
     public ServerInfo serverInfo;
 
@@ -205,7 +205,7 @@ public class Rcon extends LightBehaviour implements IRcon {
         } catch (Exception ex){}
     }
 
-    public Rcon(Config.Server server) {
+    public Rcon(Server server) {
         serverInfo = new ServerInfo();
         this.server = server;
     }

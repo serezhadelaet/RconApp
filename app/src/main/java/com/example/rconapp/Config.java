@@ -13,31 +13,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Config {
-    public static String ConfigVersion = "1.0";
-    public static Context contextOwner;
+    private static final String ConfigVersion = "1.0";
+    private static Context contextOwner;
     public String SteamAPIKey = "";
-    public List<Server> ServerList = new ArrayList<>();
+    private List<Server> ServerList = new ArrayList<>();
     public String FilteredMessages = "";
     public String ChatPrefixes = "";
     public String NotificationMessages = "";
 
-    public static class Server {
-        public String Name;
-        public String IP;
-        public String Port;
-        public String Password;
-        public Boolean Enabled;
-
-        public Server(String name, String address, String port, String password) {
-            Name = name;
-            IP = address;
-            Port = port;
-            Password =  password;
-            Enabled = false;
-        }
+    public static void setAsContentOwner(Context context) {
+        contextOwner = context;
     }
 
-    public static Config config;
+    public static boolean addServer(Server newServer){
+        for (int i = 0; i < Config.getConfig().getServerList().size(); i++){
+            Server server = Config.getConfig().getServerList().get(i);
+            if (newServer.IP.equals(server.IP) &&
+                    newServer.Port.equals(server.Port)){
+                return false;
+            }
+        }
+        getConfig().getServerList().add(newServer);
+        return true;
+    }
+
+    public static boolean removeServer(Server server){
+        return getConfig().getServerList().remove(server);
+    }
+
+    private static Config config;
 
     public static void saveConfig(){
         if (config == null)
@@ -110,4 +114,7 @@ public class Config {
         return file.exists();
     }
 
+    public List<Server> getServerList() {
+        return ServerList;
+    }
 }

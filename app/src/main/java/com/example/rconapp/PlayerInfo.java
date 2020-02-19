@@ -19,14 +19,13 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerInfo {
@@ -57,8 +56,12 @@ public class PlayerInfo {
             steams = list;
         }
 
+        public DownLoadAvatars(){
+            steams = new ArrayList<>(PlayersAdapter.getAdapter().playersWithoutAvatar);
+        }
+
         protected Bitmap doInBackground(String... str) {
-            ConnectivityManager cm = (ConnectivityManager) MainActivity.Instance.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) MainActivity.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             boolean isWifi = false;
             if (activeNetwork != null) {
@@ -130,14 +133,14 @@ public class PlayerInfo {
         mute.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                MainActivity.Instance.SendToRcons("mute " + player.UserID);
+                MainActivity.getInstance().SendToRcons("mute " + player.UserID);
                 return false;
             }
         });
         kick.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                MainActivity.Instance.SendToRcons("kick " + player.UserID);
+                MainActivity.getInstance().SendToRcons("kick " + player.UserID);
                 dialog.dismiss();
                 return false;
             }
@@ -145,7 +148,7 @@ public class PlayerInfo {
         ban.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                MainActivity.Instance.SendToRcons("ban " + player.UserID);
+                MainActivity.getInstance().SendToRcons("ban " + player.UserID);
                 dialog.dismiss();
                 return false;
             }

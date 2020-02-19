@@ -2,7 +2,6 @@ package com.example.rconapp;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,9 +11,7 @@ import android.widget.EditText;
 
 public class EditServer {
 
-    public static ColorDrawable transparentDrawableColor = new ColorDrawable(android.graphics.Color.TRANSPARENT);
-
-    public static void EditServer(final Context context, final Config.Server server) {
+    public static void EditServer(final Context context, final Server server) {
         final Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
@@ -23,8 +20,14 @@ public class EditServer {
 
         final Window window = dialog.getWindow();
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        window.setBackgroundDrawable(transparentDrawableColor);
+        window.setBackgroundDrawable(MainActivity.transparentDrawableColor);
 
+        fillData(context, dialog, server);
+
+        dialog.show();
+    }
+
+    private static void fillData(final Context context, final Dialog dialog, final Server server){
         final EditText eName = dialog.findViewById(R.id.server_edit_name);
         final EditText eIp =  dialog.findViewById(R.id.server_edit_ip);
         final EditText ePort =  dialog.findViewById(R.id.server_edit_port);
@@ -44,8 +47,8 @@ public class EditServer {
             @Override
             public boolean onLongClick(View v) {
                 RconManager.remove(server);
-                Config.getConfig().ServerList.remove(server);
-                MainActivity.Instance.UpdateMenu();
+                Config.getConfig().getServerList().remove(server);
+                MainActivity.getInstance().UpdateMenu();
                 onDone(context, dialog);
                 return false;
             }
@@ -63,23 +66,14 @@ public class EditServer {
 
                     if (server != null){
                         RconManager.remove(server);
-                        Config.getConfig().ServerList.remove(server);
+                        Config.removeServer(server);
                     }
-                    Config.Server newServer = new Config.Server(name,ip,port,pass);
+                    Server newServer = new Server(name,ip,port,pass);
 
-                    // Move away this check
-                    boolean isExists = false;
-                    for (int i = 0; i < Config.getConfig().ServerList.size(); i++){
-                        Config.Server server = Config.getConfig().ServerList.get(i);
-                        if (newServer.IP.equals(server.IP) &&
-                            newServer.Port.equals(server.Port)){
-                            isExists = true;
-                            break;
-                        }
-                    }
-                    if (!isExists) {
-                        Config.getConfig().ServerList.add(newServer);
-                        MainActivity.Instance.UpdateMenu();
+                    boolean isAdded = Config.addServer(newServer);
+
+                    if (isAdded) {
+                        MainActivity.getInstance().UpdateMenu();
                         RconManager.add(newServer);
                     }
                 }
@@ -87,12 +81,11 @@ public class EditServer {
                 onDone(context, dialog);
             }
         });
-
-        dialog.show();
     }
 
     private static void onDone(Context context, Dialog dialog){
         Config.saveConfig();
+
         // Hide a keyboard
         View view = dialog.getCurrentFocus();
         if (view != null) {

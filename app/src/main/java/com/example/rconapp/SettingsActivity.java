@@ -75,8 +75,8 @@ public class SettingsActivity extends AppCompatActivity {
                 v.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        for (int i = 0; i < Config.getConfig().ServerList.size(); i++){
-                            Config.Server server = Config.getConfig().ServerList.get(i);
+                        for (int i = 0; i < Config.getConfig().getServerList().size(); i++){
+                            Server server = Config.getConfig().getServerList().get(i);
                             String address = server.IP + ":" + server.Port;
                             if (server.Name.equals(item.getName()) &&
                                     address.equals(item.getAddress())){
@@ -104,8 +104,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void UpdateServersList() {
         List<AdapterItem> list = new ArrayList<>();
-        for (int i = 0; i < Config.getConfig().ServerList.size(); i++){
-            Config.Server server = Config.getConfig().ServerList.get(i);
+        for (int i = 0; i < Config.getConfig().getServerList().size(); i++){
+            Server server = Config.getConfig().getServerList().get(i);
             list.add(new AdapterItem(server.Name, server.IP + ":" + server.Port));
         }
         list.add(new AdapterItem(null, null));

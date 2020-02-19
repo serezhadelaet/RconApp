@@ -9,6 +9,8 @@ import androidx.core.app.NotificationCompat;
 
 public class Notifications {
 
+    // TODO: Use notification channels instead
+
     private static int notificationId = 2;
 
     public Notifications() {
@@ -16,7 +18,7 @@ public class Notifications {
     }
 
     public static void CreateOnGoing(final Context context, final String text) {
-        if (!AppService.isEnabled) return;
+        if (!AppService.isEnabled()) return;
         AppService.runOnUiThread(new Runnable() {
             @Override
             public void run() {

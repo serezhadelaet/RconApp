@@ -1,7 +1,5 @@
 package com.example.rconapp;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -12,7 +10,7 @@ import java.util.Map;
 
 public class RconActivity extends Rcon {
 
-    public RconActivity(Config.Server server){
+    public RconActivity(Server server){
         super(server);
     }
 
@@ -22,7 +20,7 @@ public class RconActivity extends Rcon {
         try{
             socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
         }catch (IOException ex){
-            MainActivity.Output(new Message(server, "Error", false, false));
+            MainActivity.Output(new Message(server, "Error"));
             return;
         }
         initListeners();
@@ -79,20 +77,20 @@ public class RconActivity extends Rcon {
             int fps = new Double(message.get("Framerate").toString()).intValue();
             int online = new Double(message.get("Players").toString()).intValue();
             int maxOnline = new Double(message.get("MaxPlayers").toString()).intValue();
-            if (fps != serverInfo.FPS) {
-                serverInfo.FPS = fps;
+            if (fps != serverInfo.fps) {
+                serverInfo.fps = fps;
                 needUpd = true;
             }
-            if (fps != serverInfo.Online) {
-                serverInfo.Online = online;
+            if (fps != serverInfo.online) {
+                serverInfo.online = online;
                 needUpd = true;
             }
-            if (fps != serverInfo.MaxOnline) {
-                serverInfo.MaxOnline = maxOnline;
+            if (fps != serverInfo.maxOnline) {
+                serverInfo.maxOnline = maxOnline;
                 needUpd = true;
             }
             if (needUpd)
-                MainActivity.Instance.UpdateOnline();
+                MainActivity.getInstance().UpdateOnline();
             return true;
         } catch (Exception ex) {
             return false;
@@ -116,17 +114,21 @@ public class RconActivity extends Rcon {
             String chatMessage = getChatMessage(msg);
             String teamChatMessage = getTeamChatMessage(msg);
 
+            Message m = new Message(server, msg);
+            if (isNotificationMessage(msg)){
+                m.setAsNotificationMessage();
+            }
+
             if (chatMessage == null) {
                 chatMessage = teamChatMessage;
             }
             if (chatMessage != null) {
-                msg = chatMessage;
+                m.setAsChatMessage();
             }
-            Message m = new Message(server, msg, isNotificationMessage(msg), chatMessage != null);
             if (teamChatMessage == null){
                 MainActivity.Output(m);
             }
-            else{
+            else {
                 MainActivity.OutputChat(m);
             }
         }
@@ -138,7 +140,7 @@ public class RconActivity extends Rcon {
         isDisconnected = false;
         updatePlayerList();
         updateServerInfo();
-        MainActivity.Instance.UpdateServers();
+        MainActivity.getInstance().UpdateServers();
     }
 
     @Override
@@ -146,8 +148,8 @@ public class RconActivity extends Rcon {
         super.onConnectedError(error);
         if (isDisconnected) return;
         isDisconnected = true;
-        MainActivity.Instance.UpdateServers();
-        MainActivity.Output(new Message(server, "onConnectError:" + error, false, false));
+        MainActivity.getInstance().UpdateServers();
+        MainActivity.Output(new Message(server, "onConnectError:" + error));
     }
 
     @Override
@@ -156,7 +158,7 @@ public class RconActivity extends Rcon {
         if (isDisconnected) return;
         isDisconnected = true;
         PlayersAdapter.getAdapter().addOrUpdatePlayers(server, null);
-        MainActivity.Instance.UpdateServers();
+        MainActivity.getInstance().UpdateServers();
     }
 
     @Override
@@ -164,8 +166,8 @@ public class RconActivity extends Rcon {
         super.onError(message);
         if (isDisconnected) return;
         isDisconnected = true;
-        MainActivity.Instance.UpdateServers();
-        MainActivity.Output(new Message(server, "Connection problem. Trying to reconnect...", false, false));
+        MainActivity.getInstance().UpdateServers();
+        MainActivity.Output(new Message(server, "Connection problem. Trying to reconnect..."));
     }
 
 }

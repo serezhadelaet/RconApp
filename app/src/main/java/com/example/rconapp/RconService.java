@@ -7,17 +7,21 @@ import java.util.TimerTask;
 
 public class RconService extends Rcon {
 
-    public RconService(Config.Server server) {
+    public RconService(Server server) {
         super(server);
     }
+
+    private Timer disconnectTimer;
 
     @Override
     public void createSocket(){
         WebSocketFactory factory = new WebSocketFactory();
         try{
-            socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
+            socket = factory.createSocket("ws://" + server.IP + ":" +
+                    server.Port + "/" + server.Password);
         } catch (IOException ex){
-            Notifications.Create(AppService.Instance.getApplicationContext(), "Connect error", server.Name);
+            Notifications.Create(AppService.getInstance().getApplicationContext(),
+                    "Connect error", server.Name);
             UpdateOnGoingNotification();
             return;
         }
@@ -26,8 +30,8 @@ public class RconService extends Rcon {
     }
 
     @Override
-    public void onTextMessage(String message, String[] messages) {
-        super.onTextMessage(message, messages);
+    public void onTextMessage(String data, String[] messages) {
+        super.onTextMessage(data, messages);
         boolean isNotifySended = false;
         for (int m = 0; m < messages.length; m++) {
             String msg = messages[m];
@@ -43,16 +47,19 @@ public class RconService extends Rcon {
             }
             if (chatMessage != null)
                 msg = chatMessage;
-            boolean isNotify = isNotificationMessage(msg);
-            History.add(new Message(server, msg, isNotify, chatMessage != null ));
+            Message message = new Message(server, msg);
+            if (isNotificationMessage(msg))
+                message.setAsNotificationMessage();
+            if (chatMessage != null)
+                message.setAsChatMessage();
+            History.add(message);
             if (isNotifySended) continue;
-            if (isNotify){
-                Notifications.Create(AppService.Instance.getApplicationContext(), "[" + server.Name + "] Notification", msg);
+            if (message.isNotification()){
+                Notifications.Create(AppService.getInstance().getApplicationContext(),
+                        "[" + server.Name + "] Notification", msg);
             }
         }
     }
-
-
 
     @Override
     public void update() {
@@ -71,7 +78,7 @@ public class RconService extends Rcon {
             msg = "Connected: " +
                     current + "/" +
                     all + " servers";
-        Notifications.CreateOnGoing(AppService.Instance.getApplicationContext(), msg);
+        Notifications.CreateOnGoing(AppService.getInstance().getApplicationContext(), msg);
     }
 
     @Override
@@ -88,8 +95,6 @@ public class RconService extends Rcon {
         super.onConnectedError(error);
         UpdateOnGoingNotification();
     }
-
-    Timer disconnectTimer;
 
     private void cancelOrCreateDisconnectTimer(){
         if (disconnectTimer != null)
@@ -114,10 +119,10 @@ public class RconService extends Rcon {
         disconnectTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Notifications.Create(AppService.Instance.getApplicationContext(),
+                Notifications.Create(AppService.getInstance().getApplicationContext(),
                         "Disconnected", server.Name);
             }
-        }, 5000);
+        }, 30000);
     }
 
     @Override

@@ -50,7 +50,7 @@ public class PlayersAdapter extends BaseAdapter {
 
     List<String> playersWithoutAvatar = new ArrayList<>();
 
-    public void addOrUpdatePlayers(Config.Server server, List<LinkedTreeMap<String, Object>> list) {
+    public void addOrUpdatePlayers(Server server, List<LinkedTreeMap<String, Object>> list) {
 
         final List<Player> oldPlayers = new ArrayList<>();
         List<String> currentPlayers = new ArrayList<>();
@@ -135,7 +135,7 @@ public class PlayersAdapter extends BaseAdapter {
     }
 
     public static void updateAvatar(final String userID, final Bitmap avatar) {
-        if (MainActivity.Instance == null) return;
+        if (MainActivity.getInstance() == null) return;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
