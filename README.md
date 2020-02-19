@@ -25,8 +25,10 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 * [CircleImageView](https://github.com/hdodenhof/CircleImageView) - Fit images into circle
 
 ## TODO
-* More complex players list with additional info about a player
-* Notifications with vibration, sound, LED options
+* Push up Notifications with vibration, sound, LED options
+* Use sqlite to store history
+* Add full smooth scrolldown circle button
+* Hide navbar when scrolling up
 
 ## Screenshots
 
