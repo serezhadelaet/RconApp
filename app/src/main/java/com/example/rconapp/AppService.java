@@ -10,7 +10,7 @@ public class AppService extends Service {
 
         public static AppService Instance;
 
-        public static Handler handler;
+        public static Handler handler = new Handler(Looper.getMainLooper());
 
         public static boolean isEnabled;
 
@@ -19,7 +19,6 @@ public class AppService extends Service {
             isEnabled = false;
             if (Instance == null) {
                 Instance = this;
-                handler = new Handler(Looper.getMainLooper());
                 if (MainActivity.Instance == null)
                     setEnable();
             }

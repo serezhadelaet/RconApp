@@ -1,5 +1,7 @@
 package com.example.rconapp;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.neovisionaries.ws.client.WebSocketFactory;
@@ -59,7 +61,7 @@ public class RconActivity extends Rcon {
             if (!dic.containsKey("Message")) return false;
             List<LinkedTreeMap<String, Object>> players = new Gson().fromJson(dic.get("Message"), List.class);
             if (players == null) return false;
-            MainActivity.Instance.AddOrUpdatePlayers(server, players);
+            PlayersAdapter.getAdapter().addOrUpdatePlayers(server, players);
             return true;
         } catch (Exception ex) {
             return false;
@@ -153,7 +155,7 @@ public class RconActivity extends Rcon {
         super.onDisconnected();
         if (isDisconnected) return;
         isDisconnected = true;
-        MainActivity.Instance.AddOrUpdatePlayers(server, null);
+        PlayersAdapter.getAdapter().addOrUpdatePlayers(server, null);
         MainActivity.Instance.UpdateServers();
     }
 

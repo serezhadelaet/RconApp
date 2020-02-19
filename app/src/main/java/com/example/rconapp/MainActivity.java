@@ -1,33 +1,49 @@
 package com.example.rconapp;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroupOverlay;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.os.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -46,32 +62,24 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import de.codecrafters.tableview.SortableTableView;
-import de.codecrafters.tableview.listeners.TableDataClickListener;
-import de.codecrafters.tableview.model.TableColumnWeightModel;
-import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
+import java.util.TreeSet;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static EditText consoleInput;
 
-    public static SortableTableView tableView;
-
     public static MainActivity Instance;
 
     public static LinearLayout linearLayoutConsoleInput;
 
-    private List<Player> playerList;
-
-    private PlayersAdapter adapter;
+    private LinearLayout layoutPlayers;
 
     private DrawerLayout drawer;
 
     private Intent serviceIntent;
 
-    private Boolean isPlayersOpened = false;
+    public static Boolean isPlayersOpened = false;
 
-    private List<String> playersWithoutAvatar = new ArrayList<>();
 
     public static boolean isPlayersTabOpen;
 
@@ -95,8 +103,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     isPlayersTabOpen = false;
                     messagesView.setVisibility(View.VISIBLE);
+                    layoutPlayers.setVisibility(View.INVISIBLE);
                     chatMessagesView.setVisibility(View.INVISIBLE);
-                    tableView.setVisibility(View.INVISIBLE);
                     linearLayoutConsoleInput.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_chat:
@@ -109,18 +117,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     isPlayersTabOpen = false;
                     chatMessagesView.setVisibility(View.VISIBLE);
+                    layoutPlayers.setVisibility(View.INVISIBLE);
                     messagesView.setVisibility(View.INVISIBLE);
-                    tableView.setVisibility(View.INVISIBLE);
                     linearLayoutConsoleInput.setVisibility(View.VISIBLE);
                     return true;
                 case R.id.navigation_players:
                     isPlayersTabOpen = true;
-
                     if (!isPlayersOpened){
-                        if (playersWithoutAvatar.size() > 0) {
-                            new DownloadImageTask(new ArrayList<>(playersWithoutAvatar)).execute();
+                        if (PlayersAdapter.getAdapter().playersWithoutAvatar.size() > 0){
+                            new PlayerInfo.DownLoadAvatars(new ArrayList<>(PlayersAdapter.getAdapter().playersWithoutAvatar)).execute();
                         }
-                        playersWithoutAvatar.clear();
+                        PlayersAdapter.getAdapter().playersWithoutAvatar.clear();
                         isPlayersOpened = true;
                     }
                     View view = MainActivity.Instance.getCurrentFocus();
@@ -128,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
+                    layoutPlayers.setVisibility(View.VISIBLE);
                     chatMessagesView.setVisibility(View.INVISIBLE);
                     messagesView.setVisibility(View.INVISIBLE);
                     linearLayoutConsoleInput.setVisibility(View.INVISIBLE);
-                    tableView.setVisibility(View.VISIBLE);
                     return true;
             }
             return false;
@@ -173,169 +180,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public class Player {
-        public String Name;
-        public String UserID;
-        public String Server;
-        public String TimeStr;
-        public Integer Time;
-        public Bitmap Avatar;
-        public Integer Ping;
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-
-        private List<String> steams;
-
-        public DownloadImageTask(List<String> list) {
-            steams = list;
-        }
-
-        protected Bitmap doInBackground(String... str) {
-            String ids = TextUtils.join(",", steams);
-            String link = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Config.getConfig().SteamAPIKey + "&steamids=" + ids;
-            String parsedPage = "";
-            try {
-                URL url = new URL(link);
-                BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-                String line;
-
-                StringBuilder sb = new StringBuilder();
-
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-
-                parsedPage = sb.toString();
-            } catch (IOException ex) {
-
-            }
-            SteamAPIPlayers players = new Gson().fromJson(parsedPage, SteamAPIPlayers.class);
-            if (players == null || players.response == null || players.response.players == null) return null;
-            for (int i = 0; i < players.response.players.size(); i++) {
-                SteamAPIPlayers.Response.GameData data = players.response.players.get(i);
-                Bitmap mIcon11 = null;
-                try {
-                    InputStream in = new java.net.URL(data.avatar).openStream();
-                    mIcon11 = BitmapFactory.decodeStream(in);
-                    final String id = data.steamid;
-                    final Bitmap m = mIcon11;
-                    mainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Player player = GetPlayer(id);
-                            if (player != null)
-                                player.Avatar = m;
-                            if (canUpdate)
-                                adapter.notifyDataSetChanged();
-                        }
-                    });
-                } catch (Exception e) {
-
-                }
-            }
-            return null;
-        }
-    }
-
-    public void AddOrUpdatePlayers(Config.Server server, List<LinkedTreeMap<String, Object>> list) {
-        final List<Player> oldPlayers = new ArrayList<>();
-        List<String> currentPlayers = new ArrayList<>();
-        if (list == null)
-            list = new ArrayList<>();
-        for (int j = 0; j < list.size(); j++) {
-            LinkedTreeMap<String, Object> entry = list.get(j);
-            String steamID = entry.get("SteamID").toString();
-            currentPlayers.add(steamID);
-            Player existingPlayer = GetPlayer(steamID);
-            if (existingPlayer == null) {
-                if (!playersWithoutAvatar.contains(steamID))
-                    playersWithoutAvatar.add(steamID);
-                Player newPlayer = new Player();
-                newPlayer.Server = server.Name;
-                UpdatePlayer(newPlayer, entry);
-                AddOrUpdatePlayer(newPlayer);
-            }
-            else
-                AddOrUpdatePlayer(existingPlayer);
-        }
-        for (int i = 0; i < playerList.size(); i++) {
-            Player current = playerList.get(i);
-            if (current.Server == server.Name && !currentPlayers.contains(current.UserID))
-                oldPlayers.add(current);
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < oldPlayers.size(); i++)
-                    playerList.remove(oldPlayers.get(i));
-                if (canUpdate)
-                    adapter.notifyDataSetChanged();
-            }
-        });
-        if (isPlayersOpened){
-            if (playersWithoutAvatar.size() > 0) {
-                new DownloadImageTask(new ArrayList<>(playersWithoutAvatar)).execute();
-            }
-            playersWithoutAvatar.clear();
-        }
-    }
-
-    private void UpdatePlayer(Player player, LinkedTreeMap<String, Object> map){
-        player.Name = map.get("DisplayName").toString();
-        player.Ping = (int)(Math.round(new Double(map.get("Ping").toString())));
-        Double time = new Double(map.get("ConnectedSeconds").toString());
-        Integer timeInt = (int)Math.round(time);
-        player.Time = timeInt;
-        Integer hours = timeInt / 3600;
-        Integer minutes = (timeInt % 3600) / 60;
-        String output = "";
-        if (hours != 0) {
-            output+=hours + "h";
-        }
-        if (hours == 0 || minutes != 0) {
-            output+=minutes + "m";
-        }
-        player.TimeStr = output;
-        player.UserID = map.get("SteamID").toString();
-    }
-
-    private Player GetPlayer(String userID) {
-        for (int i =0; i < playerList.size(); i++){
-            Player pl = playerList.get(i);
-            if (pl.UserID.equals(userID)){
-                return pl;
-            }
-        }
-        return null;
-    }
-
-    private void AddOrUpdatePlayer(final Player player) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Player existingPlayer = GetPlayer(player.UserID);
-                if (existingPlayer != null) {
-                    if (!existingPlayer.TimeStr.equals(player.TimeStr)) {
-                        existingPlayer.Time = player.Time;
-                        if (canUpdate)
-                            adapter.notifyDataSetChanged();
-                    }
-                    if (!existingPlayer.Ping.equals(player.Ping)) {
-                        existingPlayer.Ping = player.Ping;
-                        if (canUpdate)
-                            adapter.notifyDataSetChanged();
-                    }
-                }
-                else {
-                    playerList.add(player);
-                    if (canUpdate)
-                        adapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
     private MessageAdapter messageAdapter;
     private ListView messagesView;
 
@@ -344,11 +188,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void InitMessageAdapters(){
         messageAdapter = new MessageAdapter(this);
-        messagesView = (ListView) findViewById(R.id.messages_view);
+        messagesView = findViewById(R.id.messages_view);
         messagesView.setAdapter(messageAdapter);
 
         chatMessageAdapter = new MessageAdapter(this);
-        chatMessagesView = (ListView) findViewById(R.id.chatmessages_view);
+        chatMessagesView = findViewById(R.id.chatmessages_view);
         chatMessagesView.setAdapter(chatMessageAdapter);
     }
 
@@ -455,26 +299,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void InitTableView(){
+    private PlayersAdapter playersAdapter;
+    private ListView playerListView;
 
-        tableView = (SortableTableView) findViewById(R.id.tableView);
-        tableView.addDataClickListener(new PlayersClickListener());
-        adapter = new PlayersAdapter(Instance, playerList);
-        tableView.setDataAdapter(adapter);
-        tableView.setColumnComparator(0, new PlayerServerComparator());
-        tableView.setColumnComparator(1, new PlayerNameComparator());
-        tableView.setColumnComparator(2, new PlayerTimeComparator());
-        tableView.setHeaderBackgroundColor(getResources().getColor(R.color.colorAccent));
-        SimpleTableHeaderAdapter headerAdapter = new SimpleTableHeaderAdapter(Instance, new String[]{"#", "Player", "Info"});
-        headerAdapter.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        TableColumnWeightModel columnModel = new TableColumnWeightModel(3);
-        columnModel.setColumnWeight(0, 1);
-        columnModel.setColumnWeight(1, 7);
-        columnModel.setColumnWeight(2, 2);
-        tableView.setColumnModel(columnModel);
-        headerAdapter.setPaddings(1, 1, 1, 1);
-        tableView.setHeaderAdapter(headerAdapter);
-        tableView.setVisibility(View.INVISIBLE);
+    private void initPlayerList(){
+        layoutPlayers = findViewById(R.id.layout_players);
+        playersAdapter = new PlayersAdapter(this);
+        playerListView = findViewById(R.id.playerlist);
+        playerListView.setAdapter(playersAdapter);
+
+        playerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                PlayerInfo.ShowInfo(Instance, (Player)playersAdapter.getItem(position));
+            }
+        });
     }
 
     private void InitDrawer(){
@@ -513,9 +352,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Here we saying all next config iterations will be provided by this context
         Config.contextOwner = getApplicationContext();
 
-        if (playerList == null)
-            playerList = new ArrayList<>();
-        playerList.clear();
         // Setting up an app service
         CreateService();
 
@@ -528,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         linearLayoutConsoleInput = (LinearLayout) findViewById(R.id.consoleInputLayout);
 
         InitConsoleInput();
-        InitTableView();
+        initPlayerList();
         InitMessageAdapters();
         InitDrawer();
 
@@ -563,6 +399,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         menuOnline = (TextView) headerLayout.findViewById(R.id.menu_Online);
         menuServers = (TextView) headerLayout.findViewById(R.id.menu_Servers);
         UpdateServers();
+
+        Button sortByName = findViewById(R.id.players_sort_by_name);
+        Button sortByServer = findViewById(R.id.players_sort_by_server);
+
+        sortByName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playersAdapter.sortByName();
+            }
+        });
+
+        sortByServer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playersAdapter.sortByServer();
+            }
+        });
     }
 
     public class ServerSorter implements Comparator<Config.Server>
@@ -687,82 +540,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for (Map.Entry<Config.Server, Rcon> entry : RconManager.Rcons.entrySet()) {
             if (entry.getKey().Enabled)
                 entry.getValue().Send(command);
-        }
-    }
-
-    private Boolean canUpdate = true;
-    private Player clickedPlayer = null;
-
-    public void showPopup(View view) {
-        PopupMenu popup = new PopupMenu(MainActivity.this, view);
-        MenuInflater inflater = popup.getMenuInflater();
-        inflater.inflate(R.menu.playersmenu, popup.getMenu());
-        canUpdate = false;
-        popup.show();
-        popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
-            @Override
-            public void onDismiss(PopupMenu menu) {
-                canUpdate = true;
-                clickedPlayer = null;
-            }
-        });
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                canUpdate = true;
-                if (clickedPlayer == null)
-                    return true;
-                if (item.getItemId() == R.id.steam) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://steamcommunity.com/profiles/" + clickedPlayer.UserID));
-                    startActivity(browserIntent);
-                }
-                if (item.getItemId() == R.id.mute) {
-                    SendToRcons("mute " + clickedPlayer.UserID);
-                }
-                if (item.getItemId() == R.id.kick) {
-                    SendToRcons("kick " + clickedPlayer.UserID);
-                }
-                if (item.getItemId() == R.id.ban) {
-                    SendToRcons("ban " + clickedPlayer.UserID);
-                }
-                clickedPlayer = null;
-                return true;
-            }
-        });
-    }
-
-    private class PlayersClickListener implements TableDataClickListener<Player> {
-        @Override
-        public void onDataClicked(int rowIndex, Player pl) {
-            clickedPlayer = pl;
-            ActivityPlayer.player = pl;
-            Intent intent = new Intent(MainActivity.Instance.getApplicationContext(), ActivityPlayer.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
-            //MainActivity.Instance.showPopup(adapter.getCellView(rowIndex, 0, tableView));
-        }
-    }
-
-    private static class PlayerServerComparator implements Comparator<Player> {
-        @Override
-        public int compare(Player player1, Player player2) {
-            return player1.Server.compareTo(player2.Server);
-        }
-    }
-
-    private static class PlayerNameComparator implements Comparator<Player> {
-        @Override
-        public int compare(Player player1, Player player2) {
-            return player1.Name.compareTo(player2.Name);
-        }
-    }
-
-    private static class PlayerTimeComparator implements Comparator<Player> {
-        @Override
-        public int compare(Player player1, Player player2) {
-            Integer time1 = new Integer(player1.Time);
-            Integer time2 = new Integer(player2.Time);
-            return time1.compareTo(time2);
         }
     }
 

@@ -10,24 +10,43 @@
     tools:context=".MainActivity"
     tools:openDrawer="start">
 
-    <RelativeLayout
-        android:id="@+id/staticLayout"
-        android:layout_width="wrap_content"
-        android:paddingTop="46dp"
-        android:layout_height="wrap_content">
-
-        <de.codecrafters.tableview.SortableTableView
-            xmlns:table="http://schemas.android.com/apk/res-auto"
-            table:tableView_headerElevation="10"
-            android:scrollbars="vertical"
-            table:tableView_headerColor="@color/colorPrimaryDark"
+    <LinearLayout
+        android:id="@+id/layout_players"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipToPadding="false"
+        android:layout_marginRight="1sp"
+        android:layout_marginLeft="1sp"
+        android:visibility="invisible"
+        android:focusableInTouchMode="true">
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:id="@+id/tableView"
-            android:layout_height="match_parent"
-            table:tableView_columnCount="4"
-            table:layout_constraintHeight_max="wrap" />
+            android:paddingTop="46dp"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/players_sort_by_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sort By Name"/>
+            <Button
+                android:id="@+id/players_sort_by_server"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="Sort By Server"/>
+        </RelativeLayout>
 
-    </RelativeLayout>
+            <ListView
+                android:layout_width="match_parent"
+                android:id="@+id/playerlist"
+                android:layout_weight="2"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="1.0sp"
+                android:layout_height="match_parent" />
+    </LinearLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"

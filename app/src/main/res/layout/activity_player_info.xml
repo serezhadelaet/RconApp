@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -20,8 +20,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:text="PlayerName\n[76561100000000000]"
-        android:textSize="16sp"
+        android:text="PlayerName"
+        android:textSize="20sp"
+        android:layout_above="@id/activity_player_info_steamid"
+        android:layout_toRightOf="@id/activity_player_info_image"/>
+    <TextView
+        android:id="@+id/activity_player_info_steamid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:textColor="@color/colorAccentDark"
+        android:text="76561100000000000"
+        android:textSize="14sp"
         android:layout_alignBottom="@id/activity_player_info_image"
         android:layout_toRightOf="@id/activity_player_info_image"/>
 
@@ -48,23 +58,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Server: #1"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:layout_below="@id/activity_player_info_steam"/>
 
     <TextView
         android:id="@+id/activity_player_info_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:layout_below="@id/activity_player_info_server"
         android:text="Playtime: 20h 3m"/>
 
     <TextView
         android:id="@+id/activity_player_info_ping"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:layout_below="@id/activity_player_info_time"
         android:text="Ping: 50"/>
 

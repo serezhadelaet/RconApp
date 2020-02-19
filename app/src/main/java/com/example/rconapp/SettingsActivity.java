@@ -18,19 +18,42 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class SettingsActivity extends AppCompatActivity {
 
     public static SettingsActivity Instance;
 
-    public class ListAdapter extends ArrayAdapter<Config.Server> {
+    private boolean isServerListOpened = false;
+
+    private ListView listViewServers;
+
+    class AdapterItem {
+        private String name;
+        private String address;
+
+        public AdapterItem(String name, String address){
+            this.name = name;
+            this.address = address;
+        }
+
+        public String getName(){
+            return name;
+        }
+
+        public String getAddress(){
+            return address;
+        }
+    }
+
+    public class ListAdapter extends ArrayAdapter<AdapterItem> {
 
         private int resourceLayout;
         private Context mContext;
 
-        public ListAdapter(Context context, int resource, List<Config.Server> items) {
+        public ListAdapter(Context context, int resource, List<AdapterItem> items) {
             super(context, resource, items);
             this.resourceLayout = resource;
             this.mContext = context;
@@ -47,94 +70,94 @@ public class SettingsActivity extends AppCompatActivity {
                 v = vi.inflate(resourceLayout, null);
             }
 
-            final Config.Server server = getItem(position);
+            final AdapterItem item = getItem(position);
+            TextView name = v.findViewById(R.id.listview_text);
+            TextView adress = v.findViewById(R.id.listview_textAdress);
 
-            if (server != null) {
-                TextView name = (TextView) v.findViewById(R.id.listview_text);
-
-                if (name != null) {
-                    name.setText(server.Name);
-                }
-                TextView adress = (TextView) v.findViewById(R.id.listview_textAdress);
-
-                if (adress != null) {
-                    adress.setText(server.IP + ":" + server.Port);
-                }
-                Button delete = (Button) v.findViewById(R.id.listview_delete);
-                delete.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        Config.getConfig().ServerList.remove(server);
-                        Config.saveConfig();
-                        RconManager.remove(server);
-                        MainActivity.Instance.UpdateMenu();
-                        UpdateServersList();
-                        return false;
-                    }
-                });
-                delete.setOnClickListener(new View.OnClickListener() {
+            if (item.address != null) {
+                name.setText(item.getName());
+                adress.setText(item.getAddress());
+                v.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(Instance, "Long tap to delete...",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-                Button edit = (Button) v.findViewById(R.id.listview_edit);
-                edit.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        EditServerActivity.serverToEdit = server;
-                        startActivity(new Intent(Instance, EditServerActivity.class));
+                        for (int i = 0; i < Config.getConfig().ServerList.size(); i++){
+                            Config.Server server = Config.getConfig().ServerList.get(i);
+                            String address = server.IP + ":" + server.Port;
+                            if (server.Name.equals(item.getName()) &&
+                                    address.equals(item.getAddress())){
+                                EditServer.EditServer(Instance, server);
+                                break;
+                            }
+                        }
                     }
                 });
             }
-
+            else {
+                TextView label = v.findViewById(R.id.listview_label);
+                label.setText("Add new server");
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        EditServer.EditServer(Instance, null);
+                    }
+                });
+            }
             return v;
         }
 
     }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        UpdateServersList();
+    public void UpdateServersList() {
+        List<AdapterItem> list = new ArrayList<>();
+        for (int i = 0; i < Config.getConfig().ServerList.size(); i++){
+            Config.Server server = Config.getConfig().ServerList.get(i);
+            list.add(new AdapterItem(server.Name, server.IP + ":" + server.Port));
+        }
+        list.add(new AdapterItem(null, null));
+        ListAdapter customAdapter = new ListAdapter(this, R.layout.listview_item, list);
+        listViewServers.setAdapter(customAdapter);
     }
 
-    private void UpdateServersList(){
-        ListView listView = (ListView)findViewById(R.id.server_add_listview);
-        ListAdapter customAdapter = new ListAdapter(this,
-                R.layout.listview_item, Config.getConfig().ServerList);
-        listView.setAdapter(customAdapter);
+    @Override
+    public void onBackPressed() {
+        if (isServerListOpened){
+            reCreate();
+            isServerListOpened = false;
+        }
+        else{
+            finish();
+            super.onBackPressed();
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                if (isServerListOpened){
+                    reCreate();
+                    isServerListOpened = false;
+                }
+                else{
+                    finish();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Instance = this;
-        super.onCreate(savedInstanceState);
+    private void reCreate(){
         setContentView(R.layout.activity_settings);
-        getSupportActionBar().setTitle(Html.fromHtml("<font color=\"#DAE4E5\">Settings</font>"));
 
-        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
-        upArrow.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
-        getSupportActionBar().setHomeAsUpIndicator(upArrow);
+        getSupportActionBar().setTitle("Settings");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final EditText eSteamAPI = (EditText)findViewById(R.id.server_add_steamapi);
-        final EditText eFilter = (EditText)findViewById(R.id.server_add_wordsfilter);
-        final EditText ePrefixes = (EditText)findViewById(R.id.server_add_chatprefixes);
-        final EditText eNotify = (EditText)findViewById(R.id.server_add_notifymessages);
+        final EditText eSteamAPI = findViewById(R.id.server_add_steamapi);
+        final EditText eFilter = findViewById(R.id.server_add_wordsfilter);
+        final EditText ePrefixes = findViewById(R.id.server_add_chatprefixes);
+        final EditText eNotify = findViewById(R.id.server_add_notifymessages);
 
         final Config config = Config.getConfig();
 
@@ -143,9 +166,7 @@ public class SettingsActivity extends AppCompatActivity {
         ePrefixes.setText(config.ChatPrefixes);
         eNotify.setText(config.NotificationMessages);
 
-        UpdateServersList();
-
-        Button save = (Button) findViewById(R.id.activity_settings_save);
+        Button save = findViewById(R.id.activity_settings_save);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,14 +188,25 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        Button addServer = (Button) findViewById(R.id.activity_settings_addserver);
-        addServer.setOnClickListener(new View.OnClickListener() {
+        Button servers = findViewById(R.id.activity_settings_servers);
+        servers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Instance, NewServerActivity.class));
+                getSupportActionBar().setTitle("Manage servers");
+                isServerListOpened = true;
+                setContentView(R.layout.layout_serverlist);
+                listViewServers = findViewById(R.id.activity_settings_listview);
+                UpdateServersList();
             }
         });
 
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Instance = this;
+        super.onCreate(savedInstanceState);
+        reCreate();
     }
 
 }

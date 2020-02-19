@@ -4,87 +4,99 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:clipToPadding="false"
+    android:focusableInTouchMode="true"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:background="@color/colorPrimaryDark">
-
-     <TextView
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:text="Steam API KEY"
-             android:textAlignment="center"
-             android:textSize="16dp"/>
-         <EditText
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:textSize="16dp"
-             android:tooltipText="Steam API KEY"
-             android:id="@+id/server_add_steamapi"
-             android:textAlignment="center"/>
-
-         <TextView
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:text="Words to filter"
-             android:textAlignment="center"
-             android:textSize="16dp"/>
-         <EditText
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:textSize="16dp"
-             android:tooltipText="Words to filter"
-             android:id="@+id/server_add_wordsfilter"
-             android:textAlignment="center"/>
-
-         <TextView
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:text="Chat prefixes"
-             android:textAlignment="center"
-             android:textSize="16dp"/>
-         <EditText
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:textSize="16dp"
-             android:tooltipText="Chat prefixes"
-             android:id="@+id/server_add_chatprefixes"
-             android:textAlignment="center"/>
-         <TextView
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:text="Notification messages"
-             android:textAlignment="center"
-             android:textSize="16dp"/>
-         <EditText
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:textSize="16dp"
-             android:tooltipText="Notification messages"
-             android:id="@+id/server_add_notifymessages"
-             android:textAlignment="center"/>
-         <Button
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:layout_gravity="center"
-             android:id="@+id/activity_settings_save"
-             android:text="Save"/>
-         <Button
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:layout_gravity="center"
-             android:id="@+id/activity_settings_addserver"
-             android:text="Add a server"/>
-
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="300dp">
-        <ListView android:id="@+id/server_add_listview"
+        android:id="@+id/activity_settings_scrollview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:focusable="true"
-            />
- </ScrollView>
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccentDark"
+                android:text="Steam API KEY"
+                android:textAlignment="center"
+                android:textSize="16dp"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:tooltipText="Steam API KEY"
+                android:id="@+id/server_add_steamapi"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccentDark"
+                android:text="Words to filter"
+                android:textAlignment="center"
+                android:textSize="16dp"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:tooltipText="Words to filter"
+                android:id="@+id/server_add_wordsfilter"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccentDark"
+                android:text="Chat prefixes"
+                android:textAlignment="center"
+                android:textSize="16dp"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:tooltipText="Chat prefixes"
+                android:id="@+id/server_add_chatprefixes"
+                android:textAlignment="center"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccentDark"
+                android:text="Notification messages"
+                android:textAlignment="center"
+                android:textSize="16dp"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:tooltipText="Notification messages"
+                android:id="@+id/server_add_notifymessages"
+                android:textAlignment="center"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:id="@+id/activity_settings_save"
+                    android:layout_alignParentRight="true"
+                    android:text="Save"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/activity_settings_servers"
+                    android:text="Manage servers"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
 </LinearLayout>
 

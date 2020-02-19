@@ -21,7 +21,7 @@ public class MessageAdapter extends BaseAdapter {
 
     public void add(Message message) {
         this.messages.add(message);
-        notifyDataSetChanged(); // to render the list we need to notify
+        notifyDataSetChanged();
     }
 
     @Override

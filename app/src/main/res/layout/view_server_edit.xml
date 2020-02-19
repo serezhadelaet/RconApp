@@ -2,19 +2,27 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
     android:background="@color/colorPrimaryDark">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Name of the server:"
+        android:textColor="@color/colorAccentDark"
         android:textAlignment="center"
         android:textSize="16dp"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
         android:textSize="16dp"
         android:tooltipText="Enter name"
         android:textAlignment="center"
@@ -23,12 +31,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccentDark"
         android:text="IP:"
         android:textAlignment="center"
         android:textSize="16dp"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
         android:textSize="16dp"
         android:tooltipText="Enter ip"
         android:textAlignment="center"
@@ -37,12 +47,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccentDark"
         android:text="Port:"
         android:textAlignment="center"
         android:textSize="16dp"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
         android:textSize="16dp"
         android:tooltipText="Enter port"
         android:textAlignment="center"
@@ -52,21 +64,32 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccentDark"
         android:text="Password:"
         android:textAlignment="center"
         android:textSize="16dp"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
         android:textSize="16dp"
         android:tooltipText="Enter password"
         android:textAlignment="center"
         android:id="@+id/server_edit_pass"/>
-
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
     <Button android:id="@+id/server_edit_ok"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
         android:text="Save"/>
+    <Button android:id="@+id/server_edit_delete"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:text="Delete"/>
+</RelativeLayout>
+
 
 </LinearLayout>
