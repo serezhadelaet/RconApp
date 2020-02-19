@@ -10,7 +10,7 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 * Filters: unwanted data, chat messages, messages that instantiate notifications
 
 ## Builds
-* Latest release: [RconApp v0.0.3](https://github.com/serezhadelaet/RconApp/releases/tag/v0.0.3)
+* Latest release: [RconApp v0.0.4](https://github.com/serezhadelaet/RconApp/releases/tag/v0.0.4)
 
 ## Requirements
 
