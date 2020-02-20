@@ -309,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         Instance = this;
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         mainHandler = new Handler(Looper.getMainLooper());
         Notifications.RemoveOnGoing(getApplicationContext());
 
