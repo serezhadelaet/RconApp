@@ -210,16 +210,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void CreateService() {
         if (serviceIntent != null) return;
+        if (AppService.getInstance() != null) return;
         serviceIntent = new Intent(getApplicationContext(), AppService.class);
         getApplicationContext().startService(serviceIntent);
-    }
-
-    private void enableService(){
-        AppService.setEnable();
-    }
-
-    private void disableService(){
-        AppService.setDisable();
     }
 
     private void InitConsoleInput(){
@@ -326,6 +319,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         InitMessageAdapters();
         InitDrawer();
 
+        AppService.setDisable();
+
         getSupportActionBar().hide();
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
@@ -399,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onDestroy() {
-        enableService();
+        AppService.setEnable();
         super.onDestroy();
     }
 

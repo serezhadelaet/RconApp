@@ -1,11 +1,13 @@
 package com.example.rconapp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import java.util.List;
 
 public class AppService extends Service {
 
@@ -25,9 +27,7 @@ public class AppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (getInstance() == null) {
-            Instance = this;
-        }
+        Instance = this;
         if (MainActivity.getInstance() == null)
             setEnable();
         else
@@ -69,6 +69,36 @@ public class AppService extends Service {
             Server server = config.getServerList().get(i);
             RconManager.addAsService(server);
         }
+    }
+
+    private Thread.UncaughtExceptionHandler defaultUEH;
+    private Thread.UncaughtExceptionHandler uncaughtExceptionHandler = new Thread.UncaughtExceptionHandler() {
+
+        @Override
+        public void uncaughtException(Thread thread, Throwable ex) {
+            ex.printStackTrace();
+
+            restart();
+            System.exit(2);
+        }
+    };
+
+    private void restart(){
+        PendingIntent service = PendingIntent.getService(
+                getApplicationContext(),
+                1001,
+                new Intent(getApplicationContext(), AppService.class),
+                PendingIntent.FLAG_ONE_SHOT);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, service);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+
+        restart();
     }
 
     @Override

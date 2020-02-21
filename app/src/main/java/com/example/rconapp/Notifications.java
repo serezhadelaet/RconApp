@@ -17,6 +17,20 @@ public class Notifications {
 
     }
 
+    public static long lastMessageAmount = 0;
+
+    public static void updateOnGoingNotification(long messagesAmount){
+        int current, all;
+        if (messagesAmount > 0)
+            lastMessageAmount = messagesAmount;
+        current = RconManager.GetOverallConnectedServers();
+        all = RconManager.Rcons.size();
+        String msg = current + "/" + all + " servers";
+        if (lastMessageAmount > 0)
+            msg+=" | "+ lastMessageAmount + " messages";
+        Notifications.CreateOnGoing(AppService.getInstance().getApplicationContext(), msg);
+    }
+
     public static void CreateOnGoing(final Context context, final String text) {
         if (!AppService.isEnabled()) return;
         AppService.runOnUiThread(new Runnable() {

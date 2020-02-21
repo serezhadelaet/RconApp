@@ -41,6 +41,7 @@ public class History {
     }
 
     public static void clear(){
+        Notifications.lastMessageAmount = 0;
         SQLData.getInstance().clear();
     }
 }

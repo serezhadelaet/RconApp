@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class SQLData extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES =
@@ -86,7 +87,10 @@ public class SQLData extends SQLiteOpenHelper {
         if (!isTableExists(SQLContract.DataEntry.TABLE_NAME)){
             getWritableDatabase().execSQL(SQL_CREATE_ENTRIES);
         }
-        getWritableDatabase().insert(SQLContract.DataEntry.TABLE_NAME, null, cv);
+        Long l = getWritableDatabase().insert(SQLContract.DataEntry.TABLE_NAME, null, cv);
+
+        Notifications.updateOnGoingNotification(l);
+
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

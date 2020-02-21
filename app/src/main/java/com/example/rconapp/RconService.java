@@ -24,7 +24,7 @@ public class RconService extends Rcon {
         } catch (IOException ex){
             Notifications.Create(AppService.getInstance().getApplicationContext(),
                     "Connect error", server.Name);
-            UpdateOnGoingNotification();
+            Notifications.updateOnGoingNotification(0);
             return;
         }
         initListeners();
@@ -69,33 +69,21 @@ public class RconService extends Rcon {
         reconnect();
     }
 
-    private void UpdateOnGoingNotification(){
-        int current, all;
-        current = RconManager.GetOverallConnectedServers();
-        all = RconManager.Rcons.size();
-        String msg;
-        if (current == all)
-            msg = "All servers connected";
-        else
-            msg = "Connected: " +
-                    current + "/" +
-                    all + " servers";
-        Notifications.CreateOnGoing(AppService.getInstance().getApplicationContext(), msg);
-    }
+
 
     @Override
     public void onConnected() {
         super.onConnected();
         isDisconnected = false;
         cancelOrCreateDisconnectTimer();
-        UpdateOnGoingNotification();
+        Notifications.updateOnGoingNotification(0);
         isSilenceDisconnect = false;
     }
 
     @Override
     public void onConnectedError(String error) {
         super.onConnectedError(error);
-        UpdateOnGoingNotification();
+        Notifications.updateOnGoingNotification(0);
     }
 
     private void cancelOrCreateDisconnectTimer(){
