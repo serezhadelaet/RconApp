@@ -1,5 +1,6 @@
 package com.example.rconapp;
 
+import android.content.ContentValues;
 import android.graphics.Color;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,14 +16,30 @@ public class Message {
     private Color backgroundColor;
     private String date;
 
-    public Message(Server server, String text) {
-        this.text = "[" + server.Name + "] " + text;
+    public Message(String serverName, String text) {
+        this.text = "[" + serverName + "] " + text;
         this.date = dateFormat.format(Calendar.getInstance().getTime());
     }
 
     public Message(String text) {
         this.text = text;
         this.date = dateFormat.format(Calendar.getInstance().getTime());
+    }
+
+    public Message(String text, String date, boolean isNotify, boolean isChat) {
+        this.text = text;
+        this.date = date;
+        this.isNotificationMessage = isNotify;
+        this.isChatMessage = isChat;
+    }
+
+    public ContentValues getSQLContentValues(){
+        ContentValues cv = new ContentValues();
+        cv.put(SQLContract.DataEntry.COLUMN_MESSAGE, text);
+        cv.put(SQLContract.DataEntry.COLUMN_DATE, date);
+        cv.put(SQLContract.DataEntry.COLUMN_ISNOTIFY, isNotification() ? 1 : 0);
+        cv.put(SQLContract.DataEntry.COLUMN_ISCHAT, isChatMessage() ? 1 : 0);
+        return cv;
     }
 
     public String getText() {

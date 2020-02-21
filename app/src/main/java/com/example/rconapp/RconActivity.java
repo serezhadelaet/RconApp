@@ -20,7 +20,7 @@ public class RconActivity extends Rcon {
         try{
             socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
         }catch (IOException ex){
-            MainActivity.Output(new Message(server, "Error"));
+            MainActivity.Output(new Message(server.Name, "Error"));
             return;
         }
         initListeners();
@@ -114,7 +114,7 @@ public class RconActivity extends Rcon {
             String chatMessage = getChatMessage(msg);
             String teamChatMessage = getTeamChatMessage(msg);
 
-            Message m = new Message(server, msg);
+            Message m = new Message(server.Name, msg);
             if (isNotificationMessage(msg)){
                 m.setAsNotificationMessage();
             }
@@ -149,7 +149,7 @@ public class RconActivity extends Rcon {
         if (isDisconnected) return;
         isDisconnected = true;
         MainActivity.getInstance().UpdateServers();
-        MainActivity.Output(new Message(server, "onConnectError:" + error));
+        MainActivity.Output(new Message(server.Name, "onConnectError:" + error));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class RconActivity extends Rcon {
         if (isDisconnected) return;
         isDisconnected = true;
         MainActivity.getInstance().UpdateServers();
-        MainActivity.Output(new Message(server, "Connection problem. Trying to reconnect..."));
+        MainActivity.Output(new Message(server.Name, "Connection problem. Trying to reconnect..."));
     }
 
 }

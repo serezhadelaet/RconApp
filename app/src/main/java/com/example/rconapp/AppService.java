@@ -5,14 +5,15 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import java.util.List;
 
-public class AppService extends Service{
+public class AppService extends Service {
 
     private static AppService Instance;
 
     private static Handler handler = new Handler(Looper.getMainLooper());
 
-    private static boolean isEnabled;
+    private static boolean isEnabled = true;
 
     public static AppService getInstance() {
         return Instance;
@@ -24,13 +25,19 @@ public class AppService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        isEnabled = false;
         if (getInstance() == null) {
             Instance = this;
-            if (MainActivity.getInstance() == null)
-                setEnable();
         }
+        if (MainActivity.getInstance() == null)
+            setEnable();
+        else
+            setDisable();
         return Service.START_STICKY;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     public static void runOnUiThread(Runnable runnable){
@@ -38,15 +45,17 @@ public class AppService extends Service{
     }
 
     public static void setEnable(){
-        if (getInstance() == null || isEnabled()) return;
+        if (getInstance() == null) return;
         isEnabled = true;
         runRcons();
     }
 
     public static void setDisable(){
-        if (getInstance() == null || !isEnabled()) return;
+        if (getInstance() == null) return;
         isEnabled = false;
-        RconManager.removeAll();
+
+        History.sendDataMessages();
+
     }
 
     private static void runRcons() {

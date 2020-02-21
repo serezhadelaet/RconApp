@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -30,7 +29,6 @@ import com.neovisionaries.ws.client.WebSocketState;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -147,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 item.setIcon(R.drawable.ic_radio_button_checked_accent_24dp);
             else {
                 item.setIcon(R.drawable.ic_radio_button_unchecked_accent_24dp);
-                Output(new Message(server, "Disconnected"));
+                Output(new Message(server.Name, "Disconnected"));
             }
             Config.saveConfig();
         }
@@ -318,9 +316,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Setting up an app service
         CreateService();
 
-        // Disable the service if it's already enabled
-        disableService();
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -330,15 +325,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initPlayerList();
         InitMessageAdapters();
         InitDrawer();
-
-        // Fitch history from service rcons
-        List<Message> historyMessages = History.getMessages();
-        for (int i = 0; i < historyMessages.size(); i++){
-            Message m = historyMessages.get(i);
-            Output(m);
-        }
-
-        History.clear();
 
         getSupportActionBar().hide();
 

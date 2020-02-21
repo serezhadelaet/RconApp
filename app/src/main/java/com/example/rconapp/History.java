@@ -1,24 +1,46 @@
 package com.example.rconapp;
 
+import android.database.Cursor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class History {
-    private static List<Message> messages = Collections.synchronizedList(new ArrayList());
-    private static final int maxAmount = 300;
-    public static List<Message> getMessages() {
-        return messages;
+    public static void add(Message message) {
+        SQLData.getInstance().insert(message.getSQLContentValues());
     }
 
-    public static void add(Message message) {
-        if (messages.size() >= maxAmount){
-            messages.remove(0);
+    public static List<Message> getSQLData(){
+
+        List<Message> list = new ArrayList<>();
+
+        Cursor cursor = SQLData.getInstance().getCursor();
+        if (cursor != null){
+            while(cursor.moveToNext()) {
+                String text = cursor.getString(cursor.getColumnIndex(SQLContract.DataEntry.COLUMN_MESSAGE));
+                String date = cursor.getString(cursor.getColumnIndex(SQLContract.DataEntry.COLUMN_DATE));
+                Integer isnotify = cursor.getInt(cursor.getColumnIndex(SQLContract.DataEntry.COLUMN_ISNOTIFY));
+                Integer ischat = cursor.getInt(cursor.getColumnIndex(SQLContract.DataEntry.COLUMN_ISCHAT));
+                Message message = new Message(text, date, isnotify.equals(1), ischat.equals(1));
+                list.add(message);
+            }
+            cursor.close();
+
         }
-        messages.add(message);
+
+        return list;
+    }
+
+    public static void sendDataMessages(){
+        // Fitch history from service rcons
+        List<Message> historyMessages = History.getSQLData();
+        for (int i = 0; i < historyMessages.size(); i++){
+            Message m = historyMessages.get(i);
+            MainActivity.Output(m);
+        }
+        History.clear();
     }
 
     public static void clear(){
-        messages.clear();
+        SQLData.getInstance().clear();
     }
 }

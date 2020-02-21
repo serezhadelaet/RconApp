@@ -1,5 +1,7 @@
 package com.example.rconapp;
 
+import android.util.Log;
+
 import com.neovisionaries.ws.client.WebSocketFactory;
 import java.io.IOException;
 import java.util.Timer;
@@ -42,19 +44,19 @@ public class RconService extends Rcon {
 
             String chatMessage = getChatMessage(msg);
             String teamChatMessage = getTeamChatMessage(msg);
-            if (chatMessage == null){
+            if (chatMessage == null) {
                 chatMessage = teamChatMessage;
             }
             if (chatMessage != null)
                 msg = chatMessage;
-            Message message = new Message(server, msg);
+            Message message = new Message(server.Name, msg);
             if (isNotificationMessage(msg))
                 message.setAsNotificationMessage();
             if (chatMessage != null)
                 message.setAsChatMessage();
             History.add(message);
             if (isNotifySended) continue;
-            if (message.isNotification()){
+            if (message.isNotification()) {
                 Notifications.Create(AppService.getInstance().getApplicationContext(),
                         "[" + server.Name + "] Notification", msg);
             }
