@@ -33,7 +33,7 @@ public class Rcon extends LightBehaviour implements IRcon {
         if (!server.Enabled || socket == null || socket.getState() != WebSocketState.OPEN) return;
         lastIdentificator++;
         Packet packet = new Packet(command, Integer.toString(lastIdentificator));
-        socket.sendText(new Gson().toJson(packet));
+        socket.sendText(GsonHelper.toJson(packet));
     }
 
     public void onTextMessage(String message, String[] messages) {
@@ -58,8 +58,7 @@ public class Rcon extends LightBehaviour implements IRcon {
 
     public String getTeamChatMessage(String original){
         try {
-            Map<String, String> friendMessage =
-                    new Gson().fromJson(original, Map.class);
+            Map<String, String> friendMessage = GsonHelper.fromJson(original, Map.class);
             if (friendMessage.containsKey("Channel")) {
                 String friendMsg = "[TEAM CHAT] " + friendMessage.get("Username") + ": " +
                         friendMessage.get("Message");
@@ -149,7 +148,7 @@ public class Rcon extends LightBehaviour implements IRcon {
         socket.addListener(new WebSocketAdapter() {
             @Override
             public void onTextMessage(WebSocket websocket, String message) {
-                Map<String, String> dic = new Gson().fromJson(message, Map.class);
+                Map<String, String> dic =GsonHelper.fromJson(message, Map.class);
                 // Ignoring empty messages
                 if (dic.size() == 1 && dic.containsKey("Identifier"))
                     return;
@@ -211,8 +210,7 @@ public class Rcon extends LightBehaviour implements IRcon {
     }
 
     public void disconnect() {
-        if (socket != null && (socket.getState() != WebSocketState.CLOSED ||
-                socket.getState() != WebSocketState.CLOSING)) {
+        if (socket != null) {
             socket.disconnect(0, "by user", 0);
         }
     }
@@ -227,6 +225,14 @@ public class Rcon extends LightBehaviour implements IRcon {
         }
         catch (IOException ex){
 
+        }
+    }
+
+    public void close(){
+        if (socket != null){
+            socket.disconnect();
+            socket.clearListeners();
+            socket = null;
         }
     }
 

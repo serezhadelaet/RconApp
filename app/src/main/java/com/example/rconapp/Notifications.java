@@ -27,7 +27,7 @@ public class Notifications {
         all = RconManager.Rcons.size();
         String msg = current + "/" + all + " servers";
         if (lastMessageAmount > 0)
-            msg+=" | "+ lastMessageAmount + " messages";
+            msg+= " | " + lastMessageAmount + " messages";
         Notifications.CreateOnGoing(AppService.getInstance().getApplicationContext(), msg);
     }
 

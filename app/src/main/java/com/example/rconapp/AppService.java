@@ -27,6 +27,7 @@ public class AppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent,flags,startId);
         Instance = this;
         if (MainActivity.getInstance() == null)
             setEnable();
@@ -83,7 +84,7 @@ public class AppService extends Service {
         }
     };
 
-    private void restart(){
+    private void restart() {
         PendingIntent service = PendingIntent.getService(
                 getApplicationContext(),
                 1001,
@@ -96,6 +97,7 @@ public class AppService extends Service {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
+        RconManager.removeAll();
         super.onTaskRemoved(rootIntent);
 
         restart();
@@ -103,6 +105,7 @@ public class AppService extends Service {
 
     @Override
     public void onDestroy(){
+        super.onDestroy();
         RconManager.removeAll();
     }
 

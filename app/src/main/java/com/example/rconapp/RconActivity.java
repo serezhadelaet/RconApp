@@ -18,7 +18,8 @@ public class RconActivity extends Rcon {
     public void createSocket(){
         WebSocketFactory factory = new WebSocketFactory();
         try{
-            socket = factory.createSocket("ws://" + server.IP + ":" + server.Port + "/" + server.Password);
+            socket = factory.createSocket("ws://" + server.IP +
+                    ":" + server.Port + "/" + server.Password);
         }catch (IOException ex){
             MainActivity.Output(new Message(server.Name, "Error"));
             return;
@@ -55,9 +56,10 @@ public class RconActivity extends Rcon {
     private Boolean IsPlayersInfo(String data) {
         try {
             if (data == null || data.isEmpty()) return false;
-            Map<String, String> dic = new Gson().fromJson(data, Map.class);
+            Map<String, String> dic = GsonHelper.fromJson(data, Map.class);
             if (!dic.containsKey("Message")) return false;
-            List<LinkedTreeMap<String, Object>> players = new Gson().fromJson(dic.get("Message"), List.class);
+            List<LinkedTreeMap<String, Object>> players =
+                    GsonHelper.fromJson(dic.get("Message"), List.class);
             if (players == null) return false;
             PlayersAdapter.getAdapter().addOrUpdatePlayers(server, players);
             return true;
@@ -69,10 +71,11 @@ public class RconActivity extends Rcon {
     private Boolean IsServerInfo(String data) {
         try {
             if (data == null || data.isEmpty()) return false;
-            Map<String, String> dic = new Gson().fromJson(data, Map.class);
+            Map<String, String> dic = GsonHelper.fromJson(data, Map.class);
             if (!dic.containsKey("Message")) return false;
-            Map<String, Object> message = new Gson().fromJson(dic.get("Message"), Map.class);
-            if (!message.containsKey("Framerate") && !message.containsKey("Players") && !message.containsKey("MaxPlayers")) return false;
+            Map<String, Object> message = GsonHelper.fromJson(dic.get("Message"), Map.class);
+            if (!message.containsKey("Framerate") && !message.containsKey("Players") &&
+                    !message.containsKey("MaxPlayers")) return false;
             boolean needUpd = false;
             int fps = new Double(message.get("Framerate").toString()).intValue();
             int online = new Double(message.get("Players").toString()).intValue();
@@ -167,7 +170,8 @@ public class RconActivity extends Rcon {
         if (isDisconnected) return;
         isDisconnected = true;
         MainActivity.getInstance().UpdateServers();
-        MainActivity.Output(new Message(server.Name, "Connection problem. Trying to reconnect..."));
+        MainActivity.Output(new Message(server.Name,
+                "Connection problem. Trying to reconnect..."));
     }
 
 }

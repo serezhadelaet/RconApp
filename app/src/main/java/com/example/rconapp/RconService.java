@@ -1,7 +1,5 @@
 package com.example.rconapp;
 
-import android.util.Log;
-
 import com.neovisionaries.ws.client.WebSocketFactory;
 import java.io.IOException;
 import java.util.Timer;
@@ -19,6 +17,12 @@ public class RconService extends Rcon {
     public void createSocket(){
         WebSocketFactory factory = new WebSocketFactory();
         try{
+
+            if (socket != null){
+                socket.disconnect();
+                socket.clearListeners();
+            }
+
             socket = factory.createSocket("ws://" + server.IP + ":" +
                     server.Port + "/" + server.Password);
         } catch (IOException ex){
@@ -68,8 +72,6 @@ public class RconService extends Rcon {
         super.update();
         reconnect();
     }
-
-
 
     @Override
     public void onConnected() {

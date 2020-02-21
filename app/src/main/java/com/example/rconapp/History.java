@@ -37,6 +37,13 @@ public class History {
             Message m = historyMessages.get(i);
             MainActivity.Output(m);
         }
+        AppService.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.getInstance().fullScrollChat();
+                MainActivity.getInstance().fullScrollConsole();
+            }
+        });
         History.clear();
     }
 

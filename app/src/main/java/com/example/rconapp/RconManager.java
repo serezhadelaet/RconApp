@@ -52,12 +52,12 @@ public class RconManager {
         return online;
     }
 
-    public static void removeAll(){
+    public static void removeAll() {
         for (Map.Entry<Server, Rcon> entry : Rcons.entrySet()) {
             Rcon rcon = entry.getValue();
             rcon.isSilenceDisconnect = true;
             rcon.destroy();
-            rcon.disconnect();
+            rcon.close();
         }
         Rcons.clear();
     }

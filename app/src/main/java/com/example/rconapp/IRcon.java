@@ -5,4 +5,5 @@ public interface IRcon {
     void connect();
     void disconnect();
     void reconnect();
+    void close();
 }

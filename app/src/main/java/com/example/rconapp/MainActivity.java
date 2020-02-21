@@ -179,10 +179,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 getInstance().messageAdapter.add(message);
                 if (!canScrollNow) {
-                    getInstance().messagesView.setSelection(getInstance().messageAdapter.getCount() - 1);
+                    getInstance().fullScrollConsole();
                 }
             }
         });
+    }
+
+    public void fullScrollConsole(){
+        messagesView.setSelection(messageAdapter.getCount() - 1);
+    }
+
+    public void fullScrollChat(){
+        int count = chatMessageAdapter.getCount();
+        chatMessagesView.setSelection(count - 1);
     }
 
     public static void OutputChat(String prefix, String text) {
@@ -201,8 +210,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getInstance().chatMessageAdapter.add(message);
 
                 if (!canScrollNow) {
-                    int count = getInstance().chatMessageAdapter.getCount();
-                    getInstance().chatMessagesView.setSelection(count - 1);
+                    getInstance().fullScrollChat();
                 }
             }
         });
