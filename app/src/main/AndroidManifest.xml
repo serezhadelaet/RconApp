@@ -16,13 +16,13 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name="AppService"
+            android:name="rconapp.AppService"
             android:icon="@drawable/ic_home_black_24dp"
             android:label="AppService"
             >
         </service>
 
-        <receiver android:name=".BootCompleteReceiver">
+        <receiver android:name="rconapp.BootCompleteReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -30,7 +30,7 @@
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name="rconapp.MainActivity"
             android:extractNativeLibs="false"
             android:label="@string/appTitleName"
             android:windowSoftInputMode="adjustPan"
@@ -42,13 +42,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="rconapp.SettingsActivity"
             android:label="Settings"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.rconapp.MainActivity" />
+                android:value="com.example.rconapp.rconapp.MainActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
