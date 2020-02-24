@@ -6,7 +6,7 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 * Multiple servers management
 * Players list with options, like Mute/Kick/Ban/Steam link open
 * Separated console/chat tabs
-* Works in background as a service to get notifications
+* Works in background as a service to get notifications and store console logs
 * Filters: unwanted data, chat messages, messages that instantiate notifications
 
 ## Builds
@@ -26,7 +26,6 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 
 ## TODO
 * Push up Notifications with vibration, sound, LED options
-* Use sqlite to store history
 * Add full smooth scrolldown circle button
 * Hide navbar when scrolling up
 
