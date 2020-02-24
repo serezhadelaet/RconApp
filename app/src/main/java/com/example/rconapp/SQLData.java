@@ -5,9 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class SQLData extends SQLiteOpenHelper {
+
+    // TODO create config field to control this
+    private static final int maxMessagesAmount = 1000;
+
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE IF NOT EXISTS " + SQLContract.DataEntry.TABLE_NAME + " (" +
                     SQLContract.DataEntry.COLUMN_MESSAGE + " TEXT," +
@@ -44,7 +47,9 @@ public class SQLData extends SQLiteOpenHelper {
     }
 
     private boolean isTableExists(String tableName) {
-        Cursor cursor = getReadableDatabase().rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+tableName+"'", null);
+        Cursor cursor = getReadableDatabase().rawQuery(
+                "select DISTINCT tbl_name from sqlite_master where tbl_name = '"+tableName+"'",
+                null);
         if(cursor != null) {
             if(cursor.getCount() > 0) {
                 cursor.close();
@@ -67,32 +72,25 @@ public class SQLData extends SQLiteOpenHelper {
             SQLContract.DataEntry.COLUMN_ISNOTIFY,
             SQLContract.DataEntry.COLUMN_ISCHAT
         };
-
         Cursor cursor = getReadableDatabase().query(
-                SQLContract.DataEntry.TABLE_NAME,   // The table to query
-                projection,             // The array of columns to return (pass null to get all)
-                null,              // The columns for the WHERE clause
-                null,          // The values for the WHERE clause
-                null,                   // don't group the rows
-                null,                   // don't filter by row groups
-                null               // The sort order
+                SQLContract.DataEntry.TABLE_NAME,
+                projection,null, null,
+                null,null,null
         );
 
         return cursor;
     }
 
-    // TODO: Limit max amount of rows
-
     public void insert(ContentValues cv){
         if (!isTableExists(SQLContract.DataEntry.TABLE_NAME)){
             getWritableDatabase().execSQL(SQL_CREATE_ENTRIES);
         }
-        Long l = getWritableDatabase().insert(SQLContract.DataEntry.TABLE_NAME, null, cv);
-        if (l>300){
-            String sql = "delete from " + SQLContract.DataEntry.TABLE_NAME + " where rowid <= " + (l - 300);
+        Long messagesAmount = getWritableDatabase().insert(SQLContract.DataEntry.TABLE_NAME, null, cv);
+        if (messagesAmount > maxMessagesAmount){
+            String sql = "delete from " + SQLContract.DataEntry.TABLE_NAME + " where rowid <= " + (messagesAmount - maxMessagesAmount);
+            getWritableDatabase().execSQL(sql);
         }
-        Notifications.updateOnGoingNotification(l);
-
+        Notifications.updateOnGoingNotification(messagesAmount);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
