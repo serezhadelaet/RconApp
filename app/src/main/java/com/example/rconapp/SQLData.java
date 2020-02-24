@@ -88,7 +88,9 @@ public class SQLData extends SQLiteOpenHelper {
             getWritableDatabase().execSQL(SQL_CREATE_ENTRIES);
         }
         Long l = getWritableDatabase().insert(SQLContract.DataEntry.TABLE_NAME, null, cv);
-
+        if (l>300){
+            String sql = "delete from " + SQLContract.DataEntry.TABLE_NAME + " where rowid <= " + (l - 300);
+        }
         Notifications.updateOnGoingNotification(l);
 
     }
