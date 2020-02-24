@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import androidx.core.app.NotificationCompat;
 
+import java.util.Map;
+
 public class Notifications {
 
     // TODO: Use notification channels instead
@@ -20,11 +22,14 @@ public class Notifications {
     public static long lastMessageAmount = 0;
 
     public static void updateOnGoingNotification(long messagesAmount){
-        int current, all;
+        int current, all = 0;
         if (messagesAmount > 0)
             lastMessageAmount = messagesAmount;
         current = RconManager.GetOverallConnectedServers();
-        all = RconManager.Rcons.size();
+        for (Server server : Config.getConfig().getServerList()){
+            if (server.Enabled)
+                all++;
+        }
         String msg = current + "/" + all + " servers";
         if (lastMessageAmount > 0)
             msg+= " | " + lastMessageAmount + " messages";

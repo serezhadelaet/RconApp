@@ -196,6 +196,10 @@ public class Rcon extends LightBehaviour implements IRcon {
 
     }
 
+    public boolean isConnected(){
+        return socket.getState() == WebSocketState.OPEN;
+    }
+
     public void connect(){
         try{
             if (socket.getState() == WebSocketState.OPEN ||

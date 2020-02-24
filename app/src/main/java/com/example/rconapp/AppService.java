@@ -49,6 +49,7 @@ public class AppService extends Service {
         if (getInstance() == null) return;
         isEnabled = true;
         runRcons();
+        Notifications.updateOnGoingNotification(0);
     }
 
     public static void setDisable(){
