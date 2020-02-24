@@ -1,6 +1,7 @@
 package com.example.rconapp;
 
-import com.google.gson.Gson;
+import android.util.Log;
+
 import com.neovisionaries.ws.client.*;
 import java.io.IOException;
 import java.util.Map;
@@ -148,7 +149,7 @@ public class Rcon extends LightBehaviour implements IRcon {
         socket.addListener(new WebSocketAdapter() {
             @Override
             public void onTextMessage(WebSocket websocket, String message) {
-                Map<String, String> dic =GsonHelper.fromJson(message, Map.class);
+                Map<String, String> dic = GsonHelper.fromJson(message, Map.class);
                 // Ignoring empty messages
                 if (dic.size() == 1 && dic.containsKey("Identifier"))
                     return;
@@ -183,7 +184,6 @@ public class Rcon extends LightBehaviour implements IRcon {
             public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame,
                                        WebSocketFrame clientCloseFrame, boolean closedByServer) {
                 Rcon.this.onDisconnected();
-
             }
         });
     }
@@ -198,6 +198,10 @@ public class Rcon extends LightBehaviour implements IRcon {
 
     public void connect(){
         try{
+            if (socket.getState() == WebSocketState.OPEN ||
+            socket.getState() == WebSocketState.CONNECTING){
+                return;
+            }
             if (server.Enabled)
                 socket.connectAsynchronously();
 
@@ -219,20 +223,11 @@ public class Rcon extends LightBehaviour implements IRcon {
         if (socket.getState() == WebSocketState.OPEN ||
                 socket.getState() == WebSocketState.CONNECTING) return;
         if (!server.Enabled) return;
-        if (!isDisconnected) return;
         try{
             socket = socket.recreate(2000).connectAsynchronously();
         }
         catch (IOException ex){
 
-        }
-    }
-
-    public void close(){
-        if (socket != null){
-            socket.disconnect();
-            socket.clearListeners();
-            socket = null;
         }
     }
 

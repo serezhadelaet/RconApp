@@ -57,7 +57,7 @@ public class RconManager {
             Rcon rcon = entry.getValue();
             rcon.isSilenceDisconnect = true;
             rcon.destroy();
-            rcon.close();
+            rcon.disconnect();
         }
         Rcons.clear();
     }

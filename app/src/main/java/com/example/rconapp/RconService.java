@@ -25,14 +25,13 @@ public class RconService extends Rcon {
 
             socket = factory.createSocket("ws://" + server.IP + ":" +
                     server.Port + "/" + server.Password);
+            initListeners();
+            connect();
         } catch (IOException ex){
             Notifications.Create(AppService.getInstance().getApplicationContext(),
                     "Connect error", server.Name);
-            Notifications.updateOnGoingNotification(0);
             return;
         }
-        initListeners();
-        connect();
     }
 
     @Override
@@ -85,7 +84,6 @@ public class RconService extends Rcon {
     @Override
     public void onConnectedError(String error) {
         super.onConnectedError(error);
-        Notifications.updateOnGoingNotification(0);
     }
 
     private void cancelOrCreateDisconnectTimer(){
@@ -106,6 +104,7 @@ public class RconService extends Rcon {
         super.onDisconnected();
         if (isDisconnected) return;
         isDisconnected = true;
+        Notifications.updateOnGoingNotification(0);
         if (isSilenceDisconnect) return;
         cancelOrCreateDisconnectTimer();
         disconnectTimer.schedule(new TimerTask() {
