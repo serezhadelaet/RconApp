@@ -12,6 +12,13 @@ Usefull and simple android tool to manage more than one RUST server at the same 
 ## Builds
 * Latest release: [RconApp v0.0.6](https://github.com/serezhadelaet/RconApp/releases/tag/v0.0.6)
 
+## How to
+* Settings field '<b>Steam API KEY</b>' can be used to load players avatars. Google to get it.
+* Field '<b>Words to filter</b>' should use the separator "<b>,</b>" (comma symbol) to prevent to get messages with choosed words.
+* Field '<b>Chat prefixes</b>' using the separator "<b>,</b>" to make the app understand what messages should go into the "Chat" tab.
+* Field '<b>Notification messages</b>' use the same separator "<b>,</b>". Used to make notifications when the app runs as a service.
+* Example of fields with the "<b>,</b>" separator: <b>servergibs,saving complete,invalid position</b>
+
 ## Requirements
 
 * Android Studio 3.5.3 or higher
