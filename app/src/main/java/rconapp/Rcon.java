@@ -97,18 +97,17 @@ public class Rcon extends LightBehaviour implements IRcon {
         return false;
     }
 
-    public boolean isNotificationMessage(String original){
+    public NotificationsItem getNotificationMessage(String original){
         Config config = Config.getConfig();
-        if (config.NotificationMessages.length() == 0) return false;
+        if (config.getNotifications().size() == 0) return null;
         String originalLower = original.toLowerCase();
-        String[] notificationMessages = config.NotificationMessages.split(",");
-        for (int i = 0; i < notificationMessages.length; i++) {
-            String nm = notificationMessages[i].toLowerCase();
-            if (originalLower.contains(nm)){
-                return true;
+
+        for (NotificationsItem item : config.getNotifications()){
+            if (originalLower.contains(item.getText().toLowerCase())){
+                return item;
             }
         }
-        return false;
+        return null;
     }
 
     public String[] GetMessages(Map<String, String> map) {

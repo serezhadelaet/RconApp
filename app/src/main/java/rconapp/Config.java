@@ -17,9 +17,9 @@ public class Config {
     private static Context contextOwner;
     public String SteamAPIKey = "";
     private List<Server> ServerList = new ArrayList<>();
+    private List<NotificationsItem> Notifications = new ArrayList<>();
     public String FilteredMessages = "";
     public String ChatPrefixes = "";
-    public String NotificationMessages = "";
 
     public static void setAsContentOwner(Context context) {
         contextOwner = context;
@@ -117,4 +117,9 @@ public class Config {
     public List<Server> getServerList() {
         return ServerList;
     }
+
+    public List<NotificationsItem> getNotifications(){
+        return Notifications;
+    }
+
 }

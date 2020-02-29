@@ -117,10 +117,11 @@ public class RconActivity extends Rcon {
             String teamChatMessage = getTeamChatMessage(msg);
 
             Message m = new Message(server.Name, msg);
-            if (isNotificationMessage(msg)){
+            NotificationsItem notification;
+            notification = getNotificationMessage(msg);
+            if (notification != null){
                 m.setAsNotificationMessage();
             }
-
             if (chatMessage == null) {
                 chatMessage = teamChatMessage;
             }

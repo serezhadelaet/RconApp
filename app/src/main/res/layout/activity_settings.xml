@@ -30,6 +30,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="16dp"
                 android:tooltipText="Steam API KEY"
+                android:inputType="textNoSuggestions"
                 android:id="@+id/server_add_steamapi"
                 android:textAlignment="center"/>
 
@@ -44,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16dp"
+                android:inputType="textNoSuggestions"
                 android:tooltipText="Words to filter"
                 android:id="@+id/server_add_wordsfilter"
                 android:textAlignment="center"/>
@@ -60,22 +62,10 @@
                 android:layout_height="wrap_content"
                 android:textSize="16dp"
                 android:tooltipText="Chat prefixes"
+                android:inputType="textNoSuggestions"
                 android:id="@+id/server_add_chatprefixes"
                 android:textAlignment="center"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorAccentDark"
-                android:text="Notification messages"
-                android:textAlignment="center"
-                android:textSize="16dp"/>
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16dp"
-                android:tooltipText="Notification messages"
-                android:id="@+id/server_add_notifymessages"
-                android:textAlignment="center"/>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -91,6 +81,12 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/activity_settings_servers"
                     android:text="Manage servers"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/activity_settings_servers"
+                    android:id="@+id/activity_settings_notifications"
+                    android:text="Notifications"/>
             </RelativeLayout>
 
         </LinearLayout>

@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:paddingRight="6dp"
     android:paddingLeft="6dp"
-    android:background="@drawable/message_dr"
+    android:background="@color/colorPrimary"
     android:clipToPadding="false">
 
     <TextView

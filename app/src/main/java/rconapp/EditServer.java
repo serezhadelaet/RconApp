@@ -96,7 +96,7 @@ public class EditServer {
         }
 
         dialog.dismiss();
-        SettingsActivity.Instance.UpdateServersList();
+        SettingsServersList.UpdateServersList();
     }
 
 }

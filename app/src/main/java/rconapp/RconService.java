@@ -29,7 +29,7 @@ public class RconService extends Rcon {
             connect();
         } catch (IOException ex){
             Notifications.Create(AppService.getInstance().getApplicationContext(),
-                    "Connect error", server.Name);
+                    "Connect error", server.Name, null);
             return;
         }
     }
@@ -53,15 +53,19 @@ public class RconService extends Rcon {
             if (chatMessage != null)
                 msg = chatMessage;
             Message message = new Message(server.Name, msg);
-            if (isNotificationMessage(msg))
+
+            NotificationsItem notification;
+            notification = getNotificationMessage(msg);
+
+            if (notification != null)
                 message.setAsNotificationMessage();
             if (chatMessage != null)
                 message.setAsChatMessage();
             History.add(message);
             if (isNotifySended) continue;
-            if (message.isNotification()) {
+            if (notification != null && notification.isNotify()) {
                 Notifications.Create(AppService.getInstance().getApplicationContext(),
-                        "[" + server.Name + "] Notification", msg);
+                        "[" + server.Name + "] Notification", msg, notification);
             }
         }
     }
@@ -111,7 +115,7 @@ public class RconService extends Rcon {
             @Override
             public void run() {
                 Notifications.Create(AppService.getInstance().getApplicationContext(),
-                        "Disconnected", server.Name);
+                        "Disconnected", server.Name, null);
             }
         }, 30000);
     }
