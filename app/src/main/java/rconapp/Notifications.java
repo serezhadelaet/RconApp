@@ -51,7 +51,6 @@ public class Notifications {
                                 .setContentTitle("RconApp")
                                 .setContentText(text)
                                 .setOngoing(true)
-                                .setLights(Color.WHITE, 500, 500)
                                 .setContentIntent(pendingIntent);
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(1, mBuilder.build());
@@ -77,6 +76,7 @@ public class Notifications {
                                 .setSmallIcon(R.drawable.ic_notify_app)
                                 .setContentTitle(title)
                                 .setContentText(text)
+                                .setLights(Color.WHITE, 500, 500)
                                 .setContentIntent(pendingIntent);
                 mBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
                 if (notification != null && notification.hasVibration())
