@@ -124,7 +124,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical|center_horizontal"
             android:gravity="top|start"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorAccentDark"
             android:text="Type a command"
             android:maxLines="1"
             android:lines="1"

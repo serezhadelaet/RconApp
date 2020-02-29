@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (consoleInput.getText().toString().length() == 0 ||
                             consoleInput.getText().toString().equals("Type a message")) {
                         consoleInput.setText("Type a command");
-                        consoleInput.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        consoleInput.setTextColor(getResources().getColor(R.color.colorAccentDark));
                     }
 
                     isPlayersTabOpen = false;
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (consoleInput.getText().length() == 0 ||
                             consoleInput.getText().toString().equals("Type a command")) {
                         consoleInput.setText("Type a message");
-                        consoleInput.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        consoleInput.setTextColor(getResources().getColor(R.color.colorAccentDark));
                     }
 
                     isPlayersTabOpen = false;

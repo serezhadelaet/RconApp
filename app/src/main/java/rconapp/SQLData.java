@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLData extends SQLiteOpenHelper {
 
     // TODO create config field to control this
-    private static final int maxMessagesAmount = 1000;
+    private static final long maxMessagesAmount = 1000;
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE IF NOT EXISTS " + SQLContract.DataEntry.TABLE_NAME + " (" +
@@ -87,8 +87,9 @@ public class SQLData extends SQLiteOpenHelper {
         }
         Long messagesAmount = getWritableDatabase().insert(SQLContract.DataEntry.TABLE_NAME, null, cv);
         if (messagesAmount > maxMessagesAmount){
-            String sql = "delete from " + SQLContract.DataEntry.TABLE_NAME + " where rowid <= " + (messagesAmount - maxMessagesAmount);
+            String sql = "DELETE FROM " + SQLContract.DataEntry.TABLE_NAME + " WHERE rowid <= " + (messagesAmount - maxMessagesAmount);
             getWritableDatabase().execSQL(sql);
+            messagesAmount = maxMessagesAmount;
         }
         Notifications.updateOnGoingNotification(messagesAmount);
     }
